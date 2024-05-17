@@ -1,0 +1,128 @@
+#!/bin/bash
+
+# wcurl - a simple wrapper around curl for easily downloading files.
+# version: 2024-05-14
+#
+# Copyright (C) Samuel Henrique, <samueloph@debian.org>.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice (including the next
+# paragraph) shall be included in all copies or substantial portions of the
+# Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
+function print_help {
+    printf "\e[1mNAME\e[0m\n"
+    printf "\twcurl - a simple wrapper around curl for easily downloading files.\n"
+    printf "\n"
+    printf "\e[1mSYNOPSIS\e[0m\n"
+    printf "\twcurl \e[3m[-o/--opts=<CURL_OPTIONS>...]\e[0m <URL>...\n"
+    printf "\n"
+    printf "\e[1mDESCRIPTION\e[0m\n"
+    printf "\twcurl is a simple curl wrapper which lets you use curl to\n"
+    printf "\tdownload files without having to remember any parameters.\n"
+    printf "\n"
+    printf "\tSimply call wcurl with a list of URLs you want to download and\n"
+    printf "\twcurl will pick sane defaults.\n"
+    printf "\n"
+    printf "\tIf you need anything more fancy, you can provide any of curl's\n"
+    printf "\tsupported parameters via the -o/--opts option.\n"
+    printf "\n"
+    printf "\tBy default, wcurl will encode whitespaces, follow redirects,\n"
+    printf "\tautomatically chose a filename as output, perform retries, and resume from\n"
+    printf "\tbroken/interrupted downloads.\n"
+    printf "\n"
+    printf "\e[1mOPTIONS\e[0m\n"
+    printf "\t\e[3m-o, --opts=<CURL_OPTIONS>...\e[0m\n"
+    printf "\t\tOptions to be passed to the curl invocation.\n"
+    printf "\n"
+    printf "\e[1mCURL_OPTIONS\e[0m\n"
+    printf "\tAny option supported by curl can be set here, this is not used by\n"
+    printf "\twcurl, it's instead forwarded to the curl invocation.\n"
+    printf "\tSee also \e[1mcurl (1)\e[0m for extensive documentation of options.\n"
+    printf "\n"
+    printf "\e[1mURL\e[0m\n"
+    printf "\tAny arguments not prefixed by '-' will be considered an URL.\n"
+    printf "\twcurl will encode whitespaces and pass that to curl, which will perform the\n"
+    printf "\tparsing of the URL.\n"
+    printf "\n"
+    printf "\e[1mEXAMPLES\e[0m\n"
+    printf "\tDownload a single file\n"
+    printf "\t\e[1mwcurl example.com/filename.txt\e[0m\n"
+    printf "\n"
+    printf "\tDownload two files\n"
+    printf "\t\e[1mwcurl example.com/filename1.txt example.com/filename2.txt\e[0m\n"
+    printf "\n"
+    printf "\tDownload a file passing the \e[4m--progress-bar\e[0m and \e[4m--http2\e[0m flags to curl\n"
+    printf "\t\e[1mwcurl --opts=\"--progress-bar -http2\" example.com/filename.txt\e[0m\n"
+    printf "\n"
+    printf "\e[1mREPORTING BUGS\e[0m\n"
+    printf "\tIf you experience any problems with wcurl that you do not\n"
+    printf "\texperience with curl, submit an issue on the Debian Bug Tracking system\n"
+    printf "\tagainst the curl package.\n"
+    printf "\n"
+    printf "\e[1mAUTHORS\e[0m\n"
+    printf "\tSamuel Henrique <samueloph@debian.org>\n"
+    printf "\n"
+    printf "\e[1mCOPYRIGHT\e[0m\n"
+    printf "\twcurl is licensed under the MIT license\n"
+    printf "\n"
+    printf "\e[1mSEE ALSO\e[0m\n"
+    printf "\t\e[1mcurl (1)\e[0m\n"
+}
+
+# Initialize array which stores list of encoded URLs.
+declare -a urls_to_download=()
+
+# If no arguments were provided, show the help output and exit with an error.
+if [ $# -eq 0 ]; then
+    >&2 echo "No arguments provided, here's the help output:"
+    print_help
+    exit 1
+fi
+
+# Parse arguments and encode URLs to be downloaded.
+for argument in "$@"
+do
+    # Check if argument is a parameter, we need to pass those to curl.
+    if [[ $argument == -o=* ]] || [[ $argument == --opts=* ]]; then
+        curl_opts="${argument#*=}"
+    # Show help output on -h|--help
+    elif [[ $argument == "-h" ]] || [[ $argument == "--help" ]]; then
+        print_help
+        exit 0
+    # Unknown parameter provided.
+    elif [[ $argument == -* ]]; then
+        echo "Unsuported parameter provided, only -o= and --opts= are supported: $argument"
+        exit 1
+    # If it's not a parameter, assume it's an URL.
+    else
+        # Encode whitespaces into %20, since wget supports those URLs.
+        urls_to_download+=("${argument/ /%20/}")
+    fi
+done
+
+# Download URLs one by one.
+# It's not possible to download them in parallel due to the way "--continue-at-"
+# works.
+# Paralelism can be achieved by the way the user invokes wcurl.
+for url in "${urls_to_download[@]}"; do
+    # shellcheck disable=SC2086
+    curl --location --remote-name --retry 10 --retry-max-time 10 $curl_opts \
+    --continue-at - "$url"
+done

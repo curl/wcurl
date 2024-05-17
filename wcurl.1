@@ -1,0 +1,64 @@
+.TH wcurl "1" "May 2024" "wcurl" "User Commands"
+.SH NAME
+.B wcurl
+- a simple wrapper around curl for easily downloading files.
+.SH SYNOPSIS
+.nf
+\fBwcurl [\-o|\-\-opts=\fI<CURL_OPTIONS>\fP...] \fI<URL>\fP...\fR
+.fi
+.SH DESCRIPTION
+\fBwcurl\fR is a simple curl wrapper which lets you use curl to download files
+without having to remember any parameters.
+.PP
+Simply call \fBwcurl\fR with a list of URLs you want to download and \fBwcurl\fR will pick
+sane defaults.
+.PP
+If you need anything more fancy, you can provide any of curl's supported
+parameters via the \fB\-o/\-\-opts\fR option.
+.PP
+.TP
+By default, \fBwcurl\fR will:
+.br
+\[bu]  Encode whitespaces;
+.br
+\[bu]  Follow redirects;
+.br
+\[bu]  Automatically chose a filename as output;
+.br
+\[bu]  Perform retries;
+.br
+\[bu]  Resume from broken/interrupted downloads.
+.SH OPTIONS
+.TP
+\fB\-o, \-\-opts=\fI<CURL_OPTIONS>\fR...\fR
+Options to be passed to the curl invocation.
+Note that all options needs to be passed as a single item, so you may
+need to suround it with double quotes.
+.SH CURL_OPTIONS
+Any option supported by curl can be set here, this is not used by \fBwcurl\fR, it's
+instead forwarded to the curl invocation.
+.SH URL
+Anything which is not a paremeter will be considered an URL.
+\fBwcurl\fR will encode whitespaces and pass that to curl, which will perform the
+parsing of the URL.
+.SH EXAMPLES
+Download a single file:
+.br
+\fBwcurl example.com/filename.txt\fR
+.PP
+Download two files:
+.br
+\fBwcurl example.com/filename1.txt example.com/filename2.txt\fR
+.PP
+Download a file passing the \fI\-\-progress\-bar\fR and \fI\-\-http2\fR flags to curl:
+.br
+\fBwcurl \-\-opts="\-\-progress\-bar \-http2" example.com/filename.txt\fR
+.SH AUTHORS
+Samuel Henrique <samueloph@debian.org>
+.SH REPORTING BUGS
+If you experience any problems with \fBwcurl\fR that you do not experience with curl,
+submit an issue on the Debian Bug Tracking system against the curl package.
+.SH COPYRIGHT
+\fBwcurl\fR is licensed under the MIT license
+.SH SEE ALSO
+.BR curl (1)
