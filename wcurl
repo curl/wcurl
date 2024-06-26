@@ -62,12 +62,28 @@ do
     fi
 done
 
-# Download URLs one by one.
-# It's not possible to download them in parallel due to the way "--continue-at-"
-# works.
-# Paralelism can be achieved by the way the user invokes wcurl.
-for url in "${urls_to_download[@]}"; do
-    # shellcheck disable=SC2086
-    curl --location --remote-name --retry 10 --retry-max-time 10 $curl_opts \
-    --continue-at - "$url"
-done
+# The init read-only variable is used below in the for loop to check if the url
+# being appended to the command is the first one or not. That's because once we
+# are appending any URLs after the first one, we need to also make use of the
+# "--next" parameter.
+declare -r command_to_eval_init="curl --parallel"
+command_to_eval="$command_to_eval_init"
+declare -r per_url_parameters="--location --remote-name --remote-time --retry 10 --retry-max-time 10 $curl_opts --continue-at -"
+
+# If we have URLs to download.
+if (( ${#urls_to_download[@]} != 0 )); then
+    for url in "${urls_to_download[@]}"; do
+        # If this is the first command we've added, don't prepend "--next" to it.
+        if [[ "$command_to_eval" == "$command_to_eval_init" ]]; then
+            command_to_eval="$command_to_eval $per_url_parameters $url"
+        else
+            command_to_eval="$command_to_eval --next $per_url_parameters $url"
+        fi
+    done
+fi
+
+# Print command_to_eval if the debug environment variable is set.
+[[ -z "${WCURL_DEBUG}" ]] || echo "$command_to_eval"
+
+# Call curl with the generated parameters.
+eval "$command_to_eval"

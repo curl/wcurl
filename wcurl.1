@@ -19,7 +19,9 @@ parameters via the \fB\-o/\-\-opts\fR option.
 .TP
 By default, \fBwcurl\fR will:
 .br
-\[bu]  Encode whitespaces;
+\[bu]  Encode whitespaces in URLs;
+.br
+\[bu]  Download multiple URLs in parallel;
 .br
 \[bu]  Follow redirects;
 .br
@@ -28,6 +30,8 @@ By default, \fBwcurl\fR will:
 \[bu]  Perform retries;
 .br
 \[bu]  Resume from broken/interrupted downloads.
+.br
+\[bu]  Set the downloaded file timestamp to the value provided by the server, if available;
 .SH OPTIONS
 .TP
 \fB\-o, \-\-opts=\fI<CURL_OPTIONS>\fR...\fR
@@ -46,7 +50,7 @@ Download a single file:
 .br
 \fBwcurl example.com/filename.txt\fR
 .PP
-Download two files:
+Download two files in parallel:
 .br
 \fBwcurl example.com/filename1.txt example.com/filename2.txt\fR
 .PP
