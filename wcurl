@@ -66,12 +66,22 @@ done
 # being appended to the command is the first one or not. That's because once we
 # are appending any URLs after the first one, we need to also make use of the
 # "--next" parameter.
-declare -r command_to_exec_init="curl --parallel"
+# Only set '--parallel' if there's more than one URL. This increases the
+# compatibility with other parameters that can be passed through -o/--opts
+# since some might not work together with --parallel.
+if (( ${#urls_to_download[@]} > 1 )); then
+    declare -r command_to_exec_init="curl --parallel"
+else
+    declare -r command_to_exec_init="curl"
+fi
+
 command_to_exec="$command_to_exec_init"
-declare -r per_url_parameters="--location --remote-name --remote-time --retry 10 --retry-max-time 10 $curl_opts --continue-at -"
+
+declare -r per_url_parameters="--location --remote-name --remote-time \
+    --retry 10 --retry-max-time 10 $curl_opts --continue-at -"
 
 # If we have URLs to download.
-if (( ${#urls_to_download[@]} != 0 )); then
+if (( ${#urls_to_download[@]} > 0 )); then
     for url in "${urls_to_download[@]}"; do
         # If this is the first command we've added, don't prepend "--next" to it.
         if [[ "$command_to_exec" == "$command_to_exec_init" ]]; then
