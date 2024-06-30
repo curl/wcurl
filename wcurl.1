@@ -13,8 +13,9 @@ without having to remember any parameters.
 Simply call \fBwcurl\fR with a list of URLs you want to download and \fBwcurl\fR will pick
 sane defaults.
 .PP
-If you need anything more fancy, you can provide any of curl's supported
-parameters via the \fB\-o/\-\-opts\fR option.
+If you need anything more complex, you can provide any of curl's supported
+parameters via the \fB\-o/\-\-opts\fR option. Just beware that you likely
+should be using curl directly if your usecase is not covered.
 .PP
 .TP
 By default, \fBwcurl\fR will:
@@ -59,10 +60,12 @@ Download a file passing the \fI\-\-progress\-bar\fR and \fI\-\-http2\fR flags to
 \fBwcurl \-\-opts="\-\-progress\-bar \-http2" example.com/filename.txt\fR
 .SH AUTHORS
 Samuel Henrique <samueloph@debian.org>
+.br
+Sergio Durigan Junior <sergiodj@debian.org>
 .SH REPORTING BUGS
 If you experience any problems with \fBwcurl\fR that you do not experience with curl,
 submit an issue on the Debian Bug Tracking System.
 .SH COPYRIGHT
-\fBwcurl\fR is licensed under the MIT license
+\fBwcurl\fR is licensed under the curl license
 .SH SEE ALSO
 .BR curl (1)
