@@ -1,96 +1,103 @@
 #!/bin/bash
 
-# wcurl - a simple wrapper around curl for easily downloading files.
-# version: 2024-06-26
-#
-# Copyright (C) Samuel Henrique, <samueloph@debian.org>.
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice (including the next
-# paragraph) shall be included in all copies or substantial portions of the
-# Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-#
-# SPDX-License-Identifier: MIT
+# wcurl - a simple wrapper around curl to easily download files.
 
-function print_help {
-    printf "Usage: wcurl [-o|--opts=<CURL_OPTIONS>...] <URL>...\n"
-    printf "For all options use the manual: man wcurl\n"
+set -e
+
+usage() {
+    cat << _EOF_
+$0 -- a simple wrapper around curl to easily download files.
+
+Usage: $0 [-o <CURL_OPTIONS>|--opts=<CURL_OPTIONS>] <URL>...
+
+Options:
+
+  -o,--opts <CURL_OPTIONS>: Specify extra options to be
+                            passed when invoking curl.
+
+  <URL>: The URL to be downloaded.  May be specified more than once.
+_EOF_
 }
 
-# Initialize array which stores list of encoded URLs.
-declare -a urls_to_download=()
-
-# If no arguments were provided, show the help output and exit with an error.
-if [ $# -eq 0 ]; then
-    >&2 echo "No arguments provided, here's the help output:"
-    print_help
+error() {
+    printf "%s\n" "$*" > /dev/stderr
     exit 1
-fi
+}
 
-# Parse arguments and encode URLs to be downloaded.
-for argument in "$@"
-do
-    # Check if argument is a parameter, we need to pass those to curl.
-    if [[ $argument == -o=* ]] || [[ $argument == --opts=* ]]; then
-        curl_opts="${argument#*=}"
-    # Show help output on -h|--help
-    elif [[ $argument == "-h" ]] || [[ $argument == "--help" ]]; then
-        print_help
-        exit 0
-    # Unknown parameter provided.
-    elif [[ $argument == -* ]]; then
-        echo "Unsuported parameter provided, only -o= and --opts= are supported: $argument"
-        exit 1
-    # If it's not a parameter, assume it's an URL.
-    else
-        # Encode whitespaces into %20, since wget supports those URLs.
-        urls_to_download+=("${argument/ /%20/}")
+OPTS=$(getopt --options "o:h" --longoptions "opts:,help" --name wcurl -- "$@")
+
+eval set -- "${OPTS}"
+
+# Extra curl options.
+# FIXME: Should this really be per-URL?
+CURL_OPTIONS=""
+
+# The URLs to be downloaded.
+URLS=""
+
+# Set this to "--parallel" if there's more than one URL to download.
+CURL_PARALLEL=""
+
+# Parameters to be passed for each URL.
+PER_URL_PARAMETERS="--location --remote-name --remote-time --retry 10 --retry-max-time 10 --continue-at - "
+
+# Sanitize parameters.
+sanitize()
+{
+    if [ -z "${URLS}" ]; then
+	error "You must provide at least one URL to download."
     fi
+
+    if [ -n "${CURL_OPTIONS}" ]; then
+	PER_URL_PARAMETERS="${PER_URL_PARAMETERS} ${CURL_OPTIONS} "
+    fi
+
+    readonly CURL_OPTIONS URLS PER_URL_PARAMETERS CURL_PARALLEL
+}
+
+# Execute curl with the list of URLs provided by the user.
+exec_curl()
+{
+    set -- $URLS
+
+    # We can't use --next for the first URL.
+    CMD="curl ${CURL_PARALLEL} ${PER_URL_PARAMETERS} ${1} "
+
+    shift
+    for url in "$@"; do
+	CMD="${CMD} --next ${PER_URL_PARAMETERS} ${url}"
+    done
+
+    echo exec $CMD
+}
+
+while [ -n "${1}" ]; do
+    case "${1}" in
+	"-o"|"--opts")
+	    shift
+	    CURL_OPTIONS="${CURL_OPTIONS} ${1}"
+	    ;;
+
+	"-h"|"--help")
+	    usage
+	    exit 0
+	    ;;
+
+	"--")
+	    # This is the start of the list of URLs.
+	    shift
+	    if [ "$#" -gt 1 ]; then
+		CURL_PARALLEL="--parallel"
+	    fi
+	    for url in "$@"; do
+		newurl=$(printf "%s\n" "${url}" | sed 's/ /%20/g')
+		URLS="${URLS} ${newurl}"
+	    done
+	    break
+	    ;;
+    esac
+    shift
 done
 
-# The init read-only variable is used below in the for loop to check if the url
-# being appended to the command is the first one or not. That's because once we
-# are appending any URLs after the first one, we need to also make use of the
-# "--next" parameter.
-# Only set '--parallel' if there's more than one URL. This increases the
-# compatibility with other parameters that can be passed through -o/--opts
-# since some might not work together with --parallel.
-if (( ${#urls_to_download[@]} > 1 )); then
-    declare -r command_to_exec_init="curl --parallel"
-else
-    declare -r command_to_exec_init="curl"
-fi
-
-command_to_exec="$command_to_exec_init"
-
-declare -r per_url_parameters="--location --remote-name --remote-time \
-    --retry 10 --retry-max-time 10 $curl_opts --continue-at -"
-
-# If we have URLs to download.
-if (( ${#urls_to_download[@]} > 0 )); then
-    for url in "${urls_to_download[@]}"; do
-        # If this is the first command we've added, don't prepend "--next" to it.
-        if [[ "$command_to_exec" == "$command_to_exec_init" ]]; then
-            command_to_exec="$command_to_exec $per_url_parameters $url"
-        else
-            command_to_exec="$command_to_exec --next $per_url_parameters $url"
-        fi
-    done
-fi
-
-# Call curl with the generated parameters.
-exec $command_to_exec
+sanitize
+exec_curl
