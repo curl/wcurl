@@ -1,8 +1,31 @@
-#!/bin/bash
+#!/bin/sh
 
 # wcurl - a simple wrapper around curl to easily download files.
+# version: 2024-06-30
+#
+# Copyright (C) Samuel Henrique, <samueloph@debian.org>.
+# Copyright (C) Sergio Durigan Junior, <sergiodj@debian.org>
+#
+# Permission to use, copy, modify, and distribute this software for any purpose
+# with or without fee is hereby granted, provided that the above copyright
+# notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD PARTY RIGHTS. IN
+# NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+# OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# Except as contained in this notice, the name of a copyright holder shall not be
+# used in advertising or otherwise to promote the sale, use or other dealings in
+# this Software without prior written authorization of the copyright holder.
+#
+# SPDX-License-Identifier: curl
 
-set -e
+# Stop on errors and on usage of unset variables.
+set -eu
 
 usage() {
     cat << _EOF_
@@ -28,8 +51,11 @@ OPTS=$(getopt --options "o:h" --longoptions "opts:,help" --name wcurl -- "$@")
 
 eval set -- "${OPTS}"
 
-# Extra curl options.
-# FIXME: Should this really be per-URL?
+# Extra curl options provided by the user.
+# This will be set per-URL for every URL provided.
+# Some options are global, but we are erroring on the side of needlesly setting
+# them multiple times instead of causing issues with parameters that needs to
+# be set per-URL.
 CURL_OPTIONS=""
 
 # The URLs to be downloaded.
@@ -42,22 +68,21 @@ CURL_PARALLEL=""
 PER_URL_PARAMETERS="--location --remote-name --remote-time --retry 10 --retry-max-time 10 --continue-at - "
 
 # Sanitize parameters.
-sanitize()
-{
+sanitize() {
     if [ -z "${URLS}" ]; then
-	error "You must provide at least one URL to download."
+        error "You must provide at least one URL to download."
     fi
 
     if [ -n "${CURL_OPTIONS}" ]; then
-	PER_URL_PARAMETERS="${PER_URL_PARAMETERS} ${CURL_OPTIONS} "
+        PER_URL_PARAMETERS="${CURL_OPTIONS} ${PER_URL_PARAMETERS}"
     fi
 
     readonly CURL_OPTIONS URLS PER_URL_PARAMETERS CURL_PARALLEL
 }
 
 # Execute curl with the list of URLs provided by the user.
-exec_curl()
-{
+exec_curl() {
+    # shellcheck disable=SC2086
     set -- $URLS
 
     # We can't use --next for the first URL.
@@ -65,36 +90,37 @@ exec_curl()
 
     shift
     for url in "$@"; do
-	CMD="${CMD} --next ${PER_URL_PARAMETERS} ${url}"
+        CMD="${CMD} --next ${PER_URL_PARAMETERS} ${url}"
     done
 
-    echo exec $CMD
+    exec $CMD
 }
 
 while [ -n "${1}" ]; do
     case "${1}" in
-	"-o"|"--opts")
-	    shift
-	    CURL_OPTIONS="${CURL_OPTIONS} ${1}"
-	    ;;
+        "-o"|"--opts")
+            shift
+            CURL_OPTIONS="${CURL_OPTIONS} ${1}"
+            ;;
 
-	"-h"|"--help")
-	    usage
-	    exit 0
-	    ;;
+        "-h"|"--help")
+            usage
+            exit 0
+            ;;
 
-	"--")
-	    # This is the start of the list of URLs.
-	    shift
-	    if [ "$#" -gt 1 ]; then
-		CURL_PARALLEL="--parallel"
-	    fi
-	    for url in "$@"; do
-		newurl=$(printf "%s\n" "${url}" | sed 's/ /%20/g')
-		URLS="${URLS} ${newurl}"
-	    done
-	    break
-	    ;;
+        "--")
+            # This is the start of the list of URLs.
+            shift
+            if [ "$#" -gt 1 ]; then
+                CURL_PARALLEL="--parallel"
+            fi
+            for url in "$@"; do
+                # Encode whitespaces into %20, since wget supports those URLs.
+                newurl=$(printf "%s\n" "${url}" | sed 's/ /%20/g')
+                URLS="${URLS} ${newurl}"
+            done
+            break
+            ;;
     esac
     shift
 done
