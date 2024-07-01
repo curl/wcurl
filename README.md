@@ -25,20 +25,20 @@ should be using curl directly if your usecase is not covered.
 
 
 * By default, **wcurl** will:    
-  \[bu]  Encode whitespaces in URLs;  
-  \[bu]  Download multiple URLs in parallel;  
-  \[bu]  Follow redirects;  
-  \[bu]  Automatically chose a filename as output;  
-  \[bu]  Perform retries;  
-  \[bu]  Resume from broken/interrupted downloads.  
-  \[bu]  Set the downloaded file timestamp to the value provided by the server, if available;
+  * Encode whitespaces in URLs;  
+  * Download multiple URLs in parallel;  
+  * Follow redirects;  
+  * Automatically chose a filename as output;  
+  * Perform retries;  
+  * Resume from broken/interrupted downloads.  
+  * Set the downloaded file timestamp to the value provided by the server, if available;
 
 <a name="options"></a>
 
 # Options
 
 
-* **-o, --opts=_&lt;CURL\_OPTIONS&gt;**..._  
+* **-o, --opts= &lt;CURL\_OPTIONS&gt;**...  
   Options to be passed to the curl invocation.
   Note that all options needs to be passed as a single item, so you may
   need to surround it with quotes.
