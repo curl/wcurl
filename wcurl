@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # wcurl - a simple wrapper around curl to easily download files.
-# version: 2024-06-30
+# version: 2024-07-02
 #
 # Copyright (C) Samuel Henrique, <samueloph@debian.org>.
 # Copyright (C) Sergio Durigan Junior, <sergiodj@debian.org>

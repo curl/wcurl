@@ -1,4 +1,4 @@
-.TH wcurl "1" "May 2024" "wcurl" "User Commands"
+.TH wcurl "1" "2024-07-02" "wcurl" "User Commands"
 .SH NAME
 .B wcurl
 - a simple wrapper around curl to easily download files.
@@ -15,7 +15,7 @@ sane defaults.
 .PP
 If you need anything more complex, you can provide any of curl's supported
 parameters via the \fB\-o/\-\-opts\fR option. Just beware that you likely
-should be using curl directly if your usecase is not covered.
+should be using curl directly if your use case is not covered.
 .PP
 .TP
 By default, \fBwcurl\fR will:
@@ -26,7 +26,7 @@ By default, \fBwcurl\fR will:
 .br
 \[bu]  Follow redirects;
 .br
-\[bu]  Automatically chose a filename as output;
+\[bu]  Automatically choose a filename as output;
 .br
 \[bu]  Perform retries;
 .br
@@ -37,7 +37,7 @@ By default, \fBwcurl\fR will:
 .TP
 \fB\-o, \-\-opts=\fI<CURL_OPTIONS>\fR...\fR
 Options to be passed to the curl invocation.
-Note that all options needs to be passed as a single item, so you may
+Note that all options need to be passed as a single item, so you may
 need to surround it with quotes.
 .SH CURL_OPTIONS
 Any option supported by curl can be set here, this is not used by \fBwcurl\fR, it's
@@ -57,7 +57,7 @@ Download two files in parallel:
 .PP
 Download a file passing the \fI\-\-progress\-bar\fR and \fI\-\-http2\fR flags to curl:
 .br
-\fBwcurl \-\-opts="\-\-progress\-bar \-http2" example.com/filename.txt\fR
+\fBwcurl \-\-opts="\-\-progress\-bar \-\-http2" example.com/filename.txt\fR
 .SH AUTHORS
 Samuel Henrique <samueloph@debian.org>
 .br
