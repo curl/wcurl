@@ -30,8 +30,9 @@ should be using curl directly if your usecase is not covered.
   * Follow redirects;  
   * Automatically chose a filename as output;  
   * Perform retries;  
-  * Resume from broken/interrupted downloads.  
-  * Set the downloaded file timestamp to the value provided by the server, if available;
+  * Resume from broken/interrupted downloads;  
+  * Set the downloaded file timestamp to the value provided by the server, if available;  
+  * Disable **curl**'s URL globbing parser so **{}** and **\[\]** characters in URLs are not treated specially.
 
 <a name="options"></a>
 

@@ -65,7 +65,7 @@ URLS=""
 CURL_PARALLEL=""
 
 # Parameters to be passed for each URL.
-PER_URL_PARAMETERS="--location --remote-name --remote-time --retry 10 --retry-max-time 10 --continue-at - "
+PER_URL_PARAMETERS="--location --remote-name --remote-time --retry 10 --retry-max-time 10 --continue-at - --globoff "
 
 # Sanitize parameters.
 sanitize() {
