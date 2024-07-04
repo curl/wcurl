@@ -47,8 +47,8 @@ should be using curl directly if your usecase is not covered.
 
 # Curl_options
 
-Any option supported by curl can be set here, this is not used by **wcurl**, it's
-instead forwarded to the curl invocation.
+Any option supported by curl can be set here.
+This is not used by **wcurl**; it's instead forwarded to the curl invocation.
 
 <a name="url"></a>
 
