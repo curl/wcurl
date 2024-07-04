@@ -27,29 +27,39 @@
 # Stop on errors and on usage of unset variables.
 set -eu
 
-usage() {
-    cat << _EOF_
-$0 -- a simple wrapper around curl to easily download files.
+PROGRAM_NAME="$(basename "$0")"
+readonly PROGRAM_NAME
 
-Usage: $0 [-o <CURL_OPTIONS>|--opts=<CURL_OPTIONS>] <URL>...
+# Display the program usage.
+usage()
+{
+    cat << _EOF_
+${PROGRAM_NAME} -- a simple wrapper around curl to easily download files.
+
+Usage: ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>] [--] <URL>...
+       ${PROGRAM_NAME} -h|--help
 
 Options:
 
-  -o,--opts <CURL_OPTIONS>: Specify extra options to be
-                            passed when invoking curl.
+  --curl-options <CURL_OPTIONS>: Specify extra options to be
+                                 passed when invoking curl. May be
+                                 specified more than once.
+
+  --dry-run: Don't actually execute curl, just print what would be
+             invoked.
+
+  -h,--help: Print this usage message.
 
   <URL>: The URL to be downloaded.  May be specified more than once.
 _EOF_
 }
 
-error() {
+# Display an error message and bail out.
+error()
+{
     printf "%s\n" "$*" > /dev/stderr
     exit 1
 }
-
-OPTS=$(getopt --options "o:h" --longoptions "opts:,help" --name wcurl -- "$@")
-
-eval set -- "${OPTS}"
 
 # Extra curl options provided by the user.
 # This will be set per-URL for every URL provided.
@@ -61,65 +71,109 @@ CURL_OPTIONS=""
 # The URLs to be downloaded.
 URLS=""
 
-# Set this to "--parallel" if there's more than one URL to download.
-CURL_PARALLEL=""
+# The parameters that will be passed per-URL to curl.
+readonly PER_URL_PARAMETERS="\
+    --globoff \
+    --location \
+    --no-clobber \
+    --remote-name-all \
+    --remote-time \
+    --retry 10 \
+    --retry-max-time 10 "
 
-# Parameters to be passed for each URL.
-PER_URL_PARAMETERS="--location --remote-name --remote-time --retry 10 --retry-max-time 10 --continue-at - "
+# Whether to invoke curl or not.
+DRY_RUN="false"
 
 # Sanitize parameters.
-sanitize() {
+sanitize()
+{
     if [ -z "${URLS}" ]; then
         error "You must provide at least one URL to download."
     fi
 
-    if [ -n "${CURL_OPTIONS}" ]; then
-        PER_URL_PARAMETERS="${CURL_OPTIONS} ${PER_URL_PARAMETERS}"
-    fi
-
-    readonly CURL_OPTIONS URLS PER_URL_PARAMETERS CURL_PARALLEL
+    readonly CURL_OPTIONS URLS DRY_RUN
 }
 
 # Execute curl with the list of URLs provided by the user.
 exec_curl() {
+    CMD="curl "
+
+    # Detecting whether we need --parallel.  It's easier to rely on
+    # the shell's argument parsing.
     # shellcheck disable=SC2086
     set -- $URLS
 
-    # We can't use --next for the first URL.
-    CMD="curl ${CURL_PARALLEL} ${PER_URL_PARAMETERS} ${1} "
+    if [ "$#" -gt 1 ]; then
+	CURL_PARALLEL="--parallel"
+    else
+	CURL_PARALLEL=""
+    fi
 
-    shift
-    for url in "$@"; do
-        CMD="${CMD} --next ${PER_URL_PARAMETERS} ${url}"
+    # Start assembling the command.
+    #
+    # We use 'set --' here (again) because (a) we don't have arrays on
+    # POSIX shell, and (b) we need better control over the way we
+    # split arguments.
+    #
+    # shellcheck disable=SC2086
+    set -- ${CMD} ${CURL_PARALLEL}
+
+    NEXT_PARAMETER=""
+    for url in ${URLS}; do
+        # shellcheck disable=SC2086
+        set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${CURL_OPTIONS} "${url}"
+        NEXT_PARAMETER="--next"
     done
 
-    exec $CMD
+    if [ "${DRY_RUN}" = "false" ]; then
+        exec "$@"
+    else
+        printf "%s\n" "$@"
+    fi
 }
 
-while [ -n "${1}" ]; do
+# Use "${1-}" in order to avoid errors because of 'set -u'.
+while [ -n "${1-}" ]; do
     case "${1}" in
-        "-o"|"--opts")
+        --curl-options=*)
+            opt=$(printf "%s\n" "${1}" | sed 's/^--curl-options=//')
+            CURL_OPTIONS="${CURL_OPTIONS} ${opt}"
+            ;;
+
+        --curl-options)
             shift
             CURL_OPTIONS="${CURL_OPTIONS} ${1}"
             ;;
 
-        "-h"|"--help")
+        --dry-run)
+            DRY_RUN="true"
+            ;;
+
+        -h|--help)
             usage
             exit 0
             ;;
 
-        "--")
+        --)
             # This is the start of the list of URLs.
             shift
-            if [ "$#" -gt 1 ]; then
-                CURL_PARALLEL="--parallel"
-            fi
             for url in "$@"; do
                 # Encode whitespaces into %20, since wget supports those URLs.
                 newurl=$(printf "%s\n" "${url}" | sed 's/ /%20/g')
                 URLS="${URLS} ${newurl}"
             done
             break
+            ;;
+
+        -*)
+            error "Unknown option: '$1'."
+            ;;
+
+        *)
+            # This must be a URL.
+            # Encode whitespaces into %20, since wget supports those URLs.
+            newurl=$(printf "%s\n" "${1}" | sed 's/ /%20/g')
+            URLS="${URLS} ${newurl}"
             ;;
     esac
     shift
