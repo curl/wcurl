@@ -201,6 +201,7 @@ exec_curl()
     NEXT_PARAMETER=""
     for url in ${URLS}; do
         filename="$(get_url_filename "${url}")"
+        [ -z "${filename}" ] && filename=index.html
         # shellcheck disable=SC2086
         set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${CURL_HAS_NO_CLOBBER} ${CURL_OPTIONS} --output "${filename}" "${url}"
         NEXT_PARAMETER="--next"
