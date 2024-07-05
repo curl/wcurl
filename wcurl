@@ -93,7 +93,6 @@ readonly PER_URL_PARAMETERS="\
     --globoff \
     --location \
     --proto-default https \
-    --remote-name-all \
     --remote-time \
     --retry 10 \
     --retry-max-time 10 "
@@ -109,6 +108,48 @@ sanitize()
     fi
 
     readonly CURL_OPTIONS URLS DRY_RUN
+}
+
+# Indicate via exit code whether the string given in the first parameter
+# consists solely of characters from the string given in the second parameter.
+matches()
+{
+    case "${1}" in
+        *[!${2}]*|'') return 1;;
+    esac
+}
+
+# Print the given string percent-decoded.
+percent_decode()
+{
+    # Encodings of control characters and these additional ASCII characters
+    # are passed through without decoding.
+    forbidden_chars=/
+    printf "%s\n" "${1}" | fold -w1 | while IFS= read -r decode_out; do
+        if [ "${decode_out}" = % ] && IFS= read -r decode_hex1; then
+            decode_out="${decode_out}${decode_hex1}"
+            if IFS= read -r decode_hex2; then
+                decode_out="${decode_out}${decode_hex2}"
+                if matches "${decode_hex1}" "23456789abcdefABCDEF" && matches "${decode_hex2}" "0123456789abcdefABCDEF"; then
+                    decode_char="$(printf "\\$(printf %o "0x${decode_hex1}${decode_hex2}")")"
+                    matches "${decode_char}" "${forbidden_chars}" || decode_out="${decode_char}"
+                fi
+            fi
+        fi
+        printf %s "${decode_out}"
+    done
+}
+
+# Print the percent-decoded filename portion of the given URL.
+get_url_filename()
+{
+    # Remove protocol and query string if present.
+    hostname_and_path="$(printf %s "${1}" | sed -e 's,^[^/]*//,,' -e 's,?.*$,,')"
+    # If what remains contains a slash, there's a path; return it percent-decoded.
+    case "${hostname_and_path}" in
+        */*) percent_decode "$(printf %s "${hostname_and_path}" | sed -e 's,^.*/,,')";;
+    esac
+    # No slash means there was just a hostname and no path; return empty string.
 }
 
 # Execute curl with the list of URLs provided by the user.
@@ -159,8 +200,9 @@ exec_curl()
 
     NEXT_PARAMETER=""
     for url in ${URLS}; do
+        filename="$(get_url_filename "${url}")"
         # shellcheck disable=SC2086
-        set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${CURL_HAS_NO_CLOBBER} ${CURL_OPTIONS} "${url}"
+        set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${CURL_HAS_NO_CLOBBER} ${CURL_OPTIONS} --output "${filename}" "${url}"
         NEXT_PARAMETER="--next"
     done
 
