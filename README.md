@@ -7,7 +7,7 @@
 
 # Synopsis
 
-    wcurl [-o|--opts=<CURL_OPTIONS>...] <URL>...
+    wcurl [--curl-options <CURL_OPTIONS>|--curl-options=<CURL_OPTIONS>]... <URL>...
 
 <a name="description"></a>
 
@@ -20,17 +20,16 @@ Simply call **wcurl** with a list of URLs you want to download and **wcurl** wil
 sane defaults.
 
 If you need anything more complex, you can provide any of curl's supported
-parameters via the **-o/--opts** option. Just beware that you likely
-should be using curl directly if your usecase is not covered.
+parameters via the **--curl-options** option. Just beware that you likely
+should be using curl directly if your use case is not covered.
 
 
 * By default, **wcurl** will:    
   * Encode whitespaces in URLs;  
   * Download multiple URLs in parallel;  
   * Follow redirects;  
-  * Automatically chose a filename as output;  
+  * Automatically choose a filename as output, without overwritting files;  
   * Perform retries;  
-  * Resume from broken/interrupted downloads;  
   * Set the downloaded file timestamp to the value provided by the server, if available;  
   * Disable **curl**'s URL globbing parser so **{}** and **\[\]** characters in URLs are not treated specially.
 
@@ -39,9 +38,9 @@ should be using curl directly if your usecase is not covered.
 # Options
 
 
-* **-o, --opts= &lt;CURL\_OPTIONS&gt;**...  
+* **--curl-options &lt;CURL\_OPTIONS&gt;**...  
   Options to be passed to the curl invocation.
-  Note that all options needs to be passed as a single item, so you may
+  Note that all options need to be passed as a single item, so you may
   need to surround it with quotes.
 
 <a name="curl_options"></a>
@@ -70,7 +69,10 @@ Download two files in parallel:
 **wcurl example.com/filename1.txt example.com/filename2.txt**
 
 Download a file passing the _--progress-bar_ and _--http2_ flags to curl:  
-**wcurl --opts="--progress-bar -http2" example.com/filename.txt**
+**wcurl --curl-options="--progress-bar --http2" example.com/filename.txt**
+
+Resume from an interrupted download (if more options are used, this needs to be the last one in the list):  
+**wcurl --curl-options="--continue-at -" example.com/filename.txt**
 
 <a name="authors"></a>
 

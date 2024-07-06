@@ -37,6 +37,7 @@ usage()
 ${PROGRAM_NAME} -- a simple wrapper around curl to easily download files.
 
 Usage: ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>] [--] <URL>...
+       ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>] [--] <URL>...
        ${PROGRAM_NAME} -h|--help
 
 Options:

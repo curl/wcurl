@@ -4,7 +4,7 @@
 - a simple wrapper around curl to easily download files.
 .SH SYNOPSIS
 .nf
-\fBwcurl [\-o|\-\-opts=\fI<CURL_OPTIONS>\fP...] \fI<URL>\fP...\fR
+\fBwcurl [\-\-curl\-options \fI<CURL_OPTIONS>\fP|\-\-curl\-options=\fI<CURL_OPTIONS>\fP]... \fI<URL>\fP...\fR
 .fi
 .SH DESCRIPTION
 \fBwcurl\fR is a simple curl wrapper which lets you use curl to download files
@@ -14,7 +14,7 @@ Simply call \fBwcurl\fR with a list of URLs you want to download and \fBwcurl\fR
 sane defaults.
 .PP
 If you need anything more complex, you can provide any of curl's supported
-parameters via the \fB\-o/\-\-opts\fR option. Just beware that you likely
+parameters via the \fB\-\-curl\-options\fR option. Just beware that you likely
 should be using curl directly if your use case is not covered.
 .PP
 .TP
@@ -26,11 +26,9 @@ By default, \fBwcurl\fR will:
 .br
 \[bu]  Follow redirects;
 .br
-\[bu]  Automatically choose a filename as output;
+\[bu]  Automatically choose a filename as output, without overwitting files;
 .br
 \[bu]  Perform retries;
-.br
-\[bu]  Resume from broken/interrupted downloads;
 .br
 \[bu]  Set the downloaded file timestamp to the value provided by the server, if available;
 .br
@@ -39,7 +37,7 @@ By default, \fBwcurl\fR will:
 \[bu]  Disable \fBcurl\fR's URL globbing parser so \fB{}\fR and \fB[]\fR characters in URLs are not treated specially.
 .SH OPTIONS
 .TP
-\fB\-o, \-\-opts=\fI<CURL_OPTIONS>\fR...\fR
+\fB\--curl-options, \-\-curl\-options=\fI<CURL_OPTIONS>\fR...\fR
 Options to be passed to the curl invocation.
 Note that all options need to be passed as a single item, so you may
 need to surround it with quotes.
@@ -61,7 +59,11 @@ Download two files in parallel:
 .PP
 Download a file passing the \fI\-\-progress\-bar\fR and \fI\-\-http2\fR flags to curl:
 .br
-\fBwcurl \-\-opts="\-\-progress\-bar \-\-http2" example.com/filename.txt\fR
+\fBwcurl \-\-curl\-options="\-\-progress\-bar \-\-http2" example.com/filename.txt\fR
+.PP
+Resume from an interrupted download (if more options are used, this needs to be the last one in the list):
+.br
+\fBwcurl \-\-curl\-options="\-\-continue-at \-" example.com/filename.txt\fR
 .SH AUTHORS
 Samuel Henrique <samueloph@debian.org>
 .br
