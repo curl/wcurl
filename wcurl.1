@@ -30,11 +30,13 @@ By default, \fBwcurl\fR will:
 .br
 \[bu]  Perform retries;
 .br
-\[bu]  Resume from broken/interrupted downloads.
+\[bu]  Resume from broken/interrupted downloads;
 .br
 \[bu]  Set the downloaded file timestamp to the value provided by the server, if available;
 .br
 \[bu]  Default to the protocol used as https if the URL doesn't contain any.
+.br
+\[bu]  Disable \fBcurl\fR's URL globbing parser so \fB{}\fR and \fB[]\fR characters in URLs are not treated specially.
 .SH OPTIONS
 .TP
 \fB\-o, \-\-opts=\fI<CURL_OPTIONS>\fR...\fR
