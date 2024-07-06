@@ -91,7 +91,7 @@ Resume from an interrupted download (if more options are used, this needs to be 
 Samuel Henrique &lt;[samueloph@debian.org](mailto:samueloph@debian.org)&gt;  
 Sergio Durigan Junior &lt;[sergiodj@debian.org](mailto:sergiodj@debian.org)&gt;  
 Ryan Carsten Schmidt &lt;[git@ryandesign.com](mailto:git@ryandesign.com)&gt;  
-Ben Zanin;  
+Ben Zanin  
 
 <a name="reporting-bugs"></a>
 
