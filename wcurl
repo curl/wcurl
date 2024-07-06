@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # wcurl - a simple wrapper around curl to easily download files.
-# version: 2024-07-02
 #
 # Copyright (C) Samuel Henrique, <samueloph@debian.org>.
 # Copyright (C) Sergio Durigan Junior, <sergiodj@debian.org>
@@ -27,8 +26,18 @@
 # Stop on errors and on usage of unset variables.
 set -eu
 
+VERSION="2024-07-02"
+
 PROGRAM_NAME="$(basename "$0")"
 readonly PROGRAM_NAME
+
+# Display the version.
+print_version()
+{
+    cat << _EOF_
+${VERSION}
+_EOF_
+}
 
 # Display the program usage.
 usage()
@@ -39,6 +48,7 @@ ${PROGRAM_NAME} -- a simple wrapper around curl to easily download files.
 Usage: ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>] [--] <URL>...
        ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>] [--] <URL>...
        ${PROGRAM_NAME} -h|--help
+       ${PROGRAM_NAME} -V|--version
 
 Options:
 
@@ -48,6 +58,8 @@ Options:
 
   --dry-run: Don't actually execute curl, just print what would be
              invoked.
+
+  -V,--version: Print version information.
 
   -h,--help: Print this usage message.
 
@@ -153,6 +165,11 @@ while [ -n "${1-}" ]; do
 
         -h|--help)
             usage
+            exit 0
+            ;;
+
+        -V|--version)
+            print_version
             exit 0
             ;;
 
