@@ -76,6 +76,7 @@ readonly PER_URL_PARAMETERS="\
     --globoff \
     --location \
     --no-clobber \
+    --proto-default https \
     --remote-name-all \
     --remote-time \
     --retry 10 \
