@@ -4,7 +4,10 @@
 - a simple wrapper around curl to easily download files.
 .SH SYNOPSIS
 .nf
-\fBwcurl [\-\-curl\-options \fI<CURL_OPTIONS>\fP|\-\-curl\-options=\fI<CURL_OPTIONS>\fP]... \fI<URL>\fP...\fR
+\fBwcurl [\-\-curl\-options \fI<CURL_OPTIONS>\fP]... [\-\-dry\-run] [\-\-] \fI<URL>\fP...\fR
+\fBwcurl [\-\-curl\-options=\fI<CURL_OPTIONS>\fP]... [\-\-dry\-run] [\-\-] \fI<URL>\fP...\fR
+\fBwcurl \-V|\-\-version\fR
+\fBwcurl \-h|\-\-help\fR
 .fi
 .SH DESCRIPTION
 \fBwcurl\fR is a simple curl wrapper which lets you use curl to download files
@@ -37,10 +40,17 @@ By default, \fBwcurl\fR will:
 \[bu]  Disable \fBcurl\fR's URL globbing parser so \fB{}\fR and \fB[]\fR characters in URLs are not treated specially.
 .SH OPTIONS
 .TP
-\fB\--curl-options, \-\-curl\-options=\fI<CURL_OPTIONS>\fR...\fR
-Options to be passed to the curl invocation.
-Note that all options need to be passed as a single item, so you may
-need to surround it with quotes.
+\fB\-\-curl\-options, \-\-curl\-options=\fI<CURL_OPTIONS>\fR...\fR
+Specify extra options to be passed when invoking curl. May be specified more than once.
+.TP
+\fB\-\-dry\-run\fR
+Don't actually execute curl, just print what would be invoked.
+.TP
+\fB\-V, \-\-version\fR
+Print version information.
+.TP
+\fB\-h, \-\-help\fR
+Print help message.
 .SH CURL_OPTIONS
 Any option supported by curl can be set here.
 This is not used by \fBwcurl\fR; it's instead forwarded to the curl invocation.

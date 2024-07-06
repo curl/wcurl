@@ -7,7 +7,10 @@
 
 # Synopsis
 
-    wcurl [--curl-options <CURL_OPTIONS>|--curl-options=<CURL_OPTIONS>]... <URL>...
+    wcurl [--curl-options <CURL_OPTIONS>]... [--dry-run] [--] <URL>...
+    wcurl [--curl-options=<CURL_OPTIONS>]... [--dry-run] [--] <URL>...
+    wcurl -V|--version
+    wcurl -h|--help
 
 <a name="description"></a>
 
@@ -38,10 +41,17 @@ should be using curl directly if your use case is not covered.
 # Options
 
 
-* **--curl-options &lt;CURL\_OPTIONS&gt;**...  
-  Options to be passed to the curl invocation.
-  Note that all options need to be passed as a single item, so you may
-  need to surround it with quotes.
+* **--curl-options, curl-options=&lt;CURL\_OPTIONS&gt;**...  
+  Specify extra options to be passed when invoking curl. May be specified more than once.
+
+* **-dry-run**  
+  Don't actually execute curl, just print what would be invoked.
+
+* **-V, --version**  
+  Print version information.
+
+* **-h, --help**  
+  Print help message.
 
 <a name="curl_options"></a>
 
