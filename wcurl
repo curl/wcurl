@@ -90,7 +90,6 @@ URLS=""
 readonly PER_URL_PARAMETERS="\
     --globoff \
     --location \
-    --no-clobber \
     --proto-default https \
     --remote-name-all \
     --remote-time \
@@ -113,6 +112,19 @@ sanitize()
 # Execute curl with the list of URLs provided by the user.
 exec_curl() {
     CMD="curl "
+
+    # Store version to check if it supports --no-clobber.
+    curl_version=$($CMD --version | cut -f2 -d' ' | head -n1)
+
+    # --no-clobber is only supported since 7.83.
+    if [ "$(echo "$curl_version" | cut -f1 -d.)" -ge 8 ]; then
+        NO_CLOBBER="--no-clobber"
+    elif [ "$(echo "$curl_version" | cut -f1 -d.)" -eq 7 ] && \
+        [ "$(echo "$curl_version" | cut -f2 -d.)" -ge 83 ]; then
+        NO_CLOBBER="--no-clobber"
+    else
+        NO_CLOBBER=""
+    fi
 
     # Detecting whether we need --parallel.  It's easier to rely on
     # the shell's argument parsing.
@@ -137,7 +149,7 @@ exec_curl() {
     NEXT_PARAMETER=""
     for url in ${URLS}; do
         # shellcheck disable=SC2086
-        set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${CURL_OPTIONS} "${url}"
+        set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${NO_CLOBBER} ${CURL_OPTIONS} "${url}"
         NEXT_PARAMETER="--next"
     done
 

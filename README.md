@@ -31,7 +31,8 @@ should be using curl directly if your use case is not covered.
   * Encode whitespaces in URLs;  
   * Download multiple URLs in parallel;  
   * Follow redirects;  
-  * Automatically choose a filename as output, without overwritting files;  
+  * Automatically choose a filename as output;  
+  * Avoid overwriting files if the installed curl version is 7.83 or higher (--no-clobber);  
   * Perform retries;  
   * Set the downloaded file timestamp to the value provided by the server, if available;  
   * Disable **curl**'s URL globbing parser so **{}** and **\[\]** characters in URLs are not treated specially.
