@@ -29,10 +29,10 @@ should be using curl directly if your use case is not covered.
 
 * By default, **wcurl** will:    
   * Encode whitespaces in URLs;  
-  * Download multiple URLs in parallel;  
+  * Download multiple URLs in parallel if the installed curl's version is >= 7.66.0;  
   * Follow redirects;  
   * Automatically choose a filename as output;  
-  * Avoid overwriting files if the installed curl version is 7.83 or higher (--no-clobber);  
+  * Avoid overwriting files if the installed curl's version is >= 7.83.0 (--no-clobber);  
   * Perform retries;  
   * Set the downloaded file timestamp to the value provided by the server, if available;  
   * Disable **curl**'s URL globbing parser so **{}** and **\[\]** characters in URLs are not treated specially.
