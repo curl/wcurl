@@ -62,6 +62,53 @@ testInvalidOptionError()
     assertEquals "Verify whether 'wcurl' with an invalid option displays an error message" "${ret}" "Unknown option: '${invalidoption}'."
 }
 
+testParallelIfMoreThanOneUrl()
+{
+    urls='example.com/1 example.com/2'
+    ret=$(${WCURL_CMD} ${urls})
+    assertContains "Verify whether 'wcurl' uses '--parallel' if more than one url is provided" "${ret}" '--parallel'
+}
+
+testEncodingWhitespace()
+{
+    url='example.com/white space'
+    ret=$(${WCURL_CMD} "${url}")
+    assertContains "Verify 'wcurl' encodes spaces in URLs as '%20'" "${ret}" 'example.com/white%20space'
+}
+
+testDoubleDash()
+{
+    params='example.com --curl-options=abc'
+    ret=$(${WCURL_CMD} -- ${params})
+    assertTrue "Verify whether 'wcurl' accepts '--' without erroring" "$?"
+    assertContains "Verify whether 'wcurl' considers everywhing after '--' a url" "${ret}" '--curl-options=abc'
+}
+
+testCurlOptions()
+{
+    params='example.com --curl-options=--foo --curl-options --bar'
+    ret=$(${WCURL_CMD} ${params})
+    assertTrue "Verify 'wcurl' accepts '--curl-options' with and without trailing '='" "$?"
+    assertContains "Verify 'wcurl' correctly passes through --curl-options=<option>" "${ret}" '--foo'
+    assertContains "Verify 'wcurl' correctly passes through --curl-options <option>" "${ret}" '--bar'
+}
+
+testNextAmount()
+{
+    urls='example.com/1 example.com/2 example.com3'
+    ret=$(${WCURL_CMD} ${urls})
+    next_count=$(printf '%s' "${ret}" | grep -c -- --next)
+    assertEquals "Verify whether 'wcurl' includes '--next' for every url besides the first" "${next_count}" "2"
+}
+
+testUrlStartingWithDash()
+{
+    url='-example.com'
+    ret=$(${WCURL_CMD} ${url} 2>&1)
+    assertFalse "Verify wether 'wcurl' considers an URL starting with '-' as an option" "$?"
+    assertEquals "${ret}" "Unknown option: '-example.com'."
+}
+
 ## Ideas for tests:
 ##
 ## - URL with whitespace
