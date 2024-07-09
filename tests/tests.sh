@@ -30,10 +30,11 @@ if command -v grealpath >/dev/null; then
     REALPATH_CMD="grealpath"
 fi
 
-readonly ROOTDIR=$("${REALPATH_CMD}" -e "$(dirname "$0")/../")
+ROOTDIR="$(${REALPATH_CMD} -e "$(dirname "$0")/../")"
+readonly ROOTDIR
+
 export PATH="${ROOTDIR}:${PATH}"
 
-readonly CURL_NAME="curl"
 readonly WCURL_CMD="wcurl --dry-run "
 
 debug()
