@@ -88,6 +88,7 @@ URLS=""
 
 # The parameters that will be passed per-URL to curl.
 readonly PER_URL_PARAMETERS="\
+    --fail \
     --globoff \
     --location \
     --no-clobber \
