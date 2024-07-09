@@ -25,7 +25,12 @@
 #
 # SPDX-License-Identifier: curl
 
-readonly ROOTDIR=$(realpath -e "$(dirname "$0")/../")
+REALPATH_CMD="realpath"
+if command -v grealpath >/dev/null; then
+    REALPATH_CMD="grealpath"
+fi
+
+readonly ROOTDIR=$("${REALPATH_CMD}" -e "$(dirname "$0")/../")
 export PATH="${ROOTDIR}:${PATH}"
 
 readonly CURL_NAME="curl"
