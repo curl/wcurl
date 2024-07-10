@@ -71,6 +71,8 @@ testInvalidOptionError()
 
 testParallelIfMoreThanOneUrl()
 {
+    # TODO: This test is wrong for curl 7.65 or older, since --parallel was only introduced in 7.66.
+    #       We should check curl's version and skip this test instead.
     urls='example.com/1 example.com/2'
     ret=$(${WCURL_CMD} ${urls})
     assertContains "Verify whether 'wcurl' uses '--parallel' if more than one url is provided" "${ret}" '--parallel'
