@@ -24,7 +24,7 @@
 #
 # SPDX-License-Identifier: curl
 
-readonly ROOTDIR=$(realpath -e "$(dirname "$0")/../")
+readonly ROOTDIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 export PATH="${ROOTDIR}:${PATH}"
 
 readonly CURL_NAME="curl"
