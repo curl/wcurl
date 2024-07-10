@@ -91,7 +91,6 @@ readonly PER_URL_PARAMETERS="\
     --fail \
     --globoff \
     --location \
-    --no-clobber \
     --proto-default https \
     --remote-name-all \
     --remote-time \
@@ -115,15 +114,39 @@ sanitize()
 exec_curl() {
     CMD="curl "
 
+    # Store version to check if it supports --no-clobber and --parallel.
+    curl_version=$($CMD --version | cut -f2 -d' ' | head -n1)
+
+    # --no-clobber is only supported since 7.83.0.
+    # --parallel is only supported since 7.66.0.
+    if [ "$(echo "$curl_version" | cut -f1 -d.)" -ge 8 ]; then
+        CURL_HAS_NO_CLOBBER="--no-clobber"
+        CURL_HAS_PARALLEL="--parallel"
+    elif [ "$(echo "$curl_version" | cut -f1 -d.)" -eq 7 ];then
+        if [ "$(echo "$curl_version" | cut -f2 -d.)" -ge 83 ]; then
+            CURL_HAS_NO_CLOBBER="--no-clobber"
+        else
+            CURL_HAS_NO_CLOBBER=""
+        fi
+        if [ "$(echo "$curl_version" | cut -f2 -d.)" -ge 66 ]; then
+            CURL_HAS_PARALLEL="--parallel"
+        else
+            CURL_HAS_PARALLEL=""
+        fi
+    else
+        CURL_HAS_NO_CLOBBER=""
+        CURL_HAS_PARALLEL=""
+    fi
+
     # Detecting whether we need --parallel.  It's easier to rely on
     # the shell's argument parsing.
     # shellcheck disable=SC2086
     set -- $URLS
 
     if [ "$#" -gt 1 ]; then
-	CURL_PARALLEL="--parallel"
+        CURL_PARALLEL="$CURL_HAS_PARALLEL"
     else
-	CURL_PARALLEL=""
+        CURL_PARALLEL=""
     fi
 
     # Start assembling the command.
@@ -138,7 +161,7 @@ exec_curl() {
     NEXT_PARAMETER=""
     for url in ${URLS}; do
         # shellcheck disable=SC2086
-        set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${CURL_OPTIONS} "${url}"
+        set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${CURL_HAS_NO_CLOBBER} ${CURL_OPTIONS} "${url}"
         NEXT_PARAMETER="--next"
     done
 
