@@ -5,6 +5,7 @@
 # This is wcurl's testsuite.
 #
 # Copyright (C) Sergio Durigan Junior, <sergiodj@debian.org>
+# Copyright (C) Guilherme Puida Moreira, <guilherme@puida.xyz>
 #
 # Permission to use, copy, modify, and distribute this software for any purpose
 # with or without fee is hereby granted, provided that the above copyright
@@ -27,7 +28,6 @@
 readonly ROOTDIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 export PATH="${ROOTDIR}:${PATH}"
 
-readonly CURL_NAME="curl"
 readonly WCURL_CMD="wcurl --dry-run "
 
 debug()
@@ -60,6 +60,55 @@ testInvalidOptionError()
     ret=$(${WCURL_CMD} ${invalidoption} 2>&1)
     assertFalse "Verify whether 'wcurl' with an invalid option exits with an error" "$?"
     assertEquals "Verify whether 'wcurl' with an invalid option displays an error message" "${ret}" "Unknown option: '${invalidoption}'."
+}
+
+testParallelIfMoreThanOneUrl()
+{
+    # TODO: This test is wrong for curl 7.65 or older, since --parallel was only introduced in 7.66.
+    #       We should check curl's version and skip this test instead.
+    urls='example.com/1 example.com/2'
+    ret=$(${WCURL_CMD} ${urls})
+    assertContains "Verify whether 'wcurl' uses '--parallel' if more than one url is provided" "${ret}" '--parallel'
+}
+
+testEncodingWhitespace()
+{
+    url='example.com/white space'
+    ret=$(${WCURL_CMD} "${url}")
+    assertContains "Verify 'wcurl' encodes spaces in URLs as '%20'" "${ret}" 'example.com/white%20space'
+}
+
+testDoubleDash()
+{
+    params='example.com --curl-options=abc'
+    ret=$(${WCURL_CMD} -- ${params})
+    assertTrue "Verify whether 'wcurl' accepts '--' without erroring" "$?"
+    assertContains "Verify whether 'wcurl' considers everywhing after '--' a url" "${ret}" '--curl-options=abc'
+}
+
+testCurlOptions()
+{
+    params='example.com --curl-options=--foo --curl-options --bar'
+    ret=$(${WCURL_CMD} ${params})
+    assertTrue "Verify 'wcurl' accepts '--curl-options' with and without trailing '='" "$?"
+    assertContains "Verify 'wcurl' correctly passes through --curl-options=<option>" "${ret}" '--foo'
+    assertContains "Verify 'wcurl' correctly passes through --curl-options <option>" "${ret}" '--bar'
+}
+
+testNextAmount()
+{
+    urls='example.com/1 example.com/2 example.com3'
+    ret=$(${WCURL_CMD} ${urls})
+    next_count=$(printf '%s' "${ret}" | grep -c -- --next)
+    assertEquals "Verify whether 'wcurl' includes '--next' for every url besides the first" "${next_count}" "2"
+}
+
+testUrlStartingWithDash()
+{
+    url='-example.com'
+    ret=$(${WCURL_CMD} ${url} 2>&1)
+    assertFalse "Verify wether 'wcurl' considers an URL starting with '-' as an option" "$?"
+    assertEquals "${ret}" "Unknown option: '-example.com'."
 }
 
 ## Ideas for tests:
