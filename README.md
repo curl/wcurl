@@ -99,7 +99,7 @@ Ben Zanin
 # Reporting Bugs
 
 If you experience any problems with **wcurl** that you do not experience with curl,
-submit an issue on the Debian Bug Tracking System.
+submit an issue [here](https://github.com/curl/wcurl/issues).
 
 <a name="copyright"></a>
 
