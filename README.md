@@ -54,7 +54,7 @@ should be using curl directly if your use case is not covered.
 * **--curl-options, curl-options=&lt;CURL\_OPTIONS&gt;**...  
   Specify extra options to be passed when invoking curl. May be specified more than once.
 
-* **-dry-run**  
+* **--dry-run**  
   Don't actually execute curl, just print what would be invoked.
 
 * **-V, --version**  
