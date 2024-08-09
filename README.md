@@ -1,3 +1,12 @@
+<!--
+Copyright (C) Samuel Henrique <samueloph@debian.org>
+
+SPDX-License-Identifier: curl
+-->
+
+# [![wcurl logo](https://curl.se/wcurl/wcurl-logo.png)](https://curl.se/wcurl)
+
+
 # wcurl(1)
 
 **wcurl**
