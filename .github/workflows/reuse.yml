@@ -9,6 +9,7 @@ on:
   push:
     branches:
       - main
+      - 'samueloph/*'
       - '*/ci'
   pull_request:
     branches:
