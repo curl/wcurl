@@ -85,6 +85,19 @@ parsing of the URL.
 
   `wcurl --curl-options="--continue-at -" example.com/filename.txt`
 
+# Running the testsuite
+
+If you would like to run the tests, you will first need to install the
+`shunit2` package.  On Debian-like and Fedora-like systems, the
+package is called `shunit2`.
+
+After that, you can run the testsuite by simply invoking the test
+script:
+
+```sh
+./tests/tests.sh
+```
+
 # Authors
 
 Samuel Henrique &lt;[samueloph@debian.org](mailto:samueloph@debian.org)&gt;  
