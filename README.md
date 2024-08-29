@@ -12,16 +12,12 @@ SPDX-License-Identifier: curl
 **wcurl**
 - a simple wrapper around curl to easily download files.
 
-<a name="synopsis"></a>
-
 # Synopsis
 
     wcurl [--curl-options <CURL_OPTIONS>]... [--dry-run] [--] <URL>...
     wcurl [--curl-options=<CURL_OPTIONS>]... [--dry-run] [--] <URL>...
     wcurl -V|--version
     wcurl -h|--help
-
-<a name="description"></a>
 
 # Description
 
@@ -46,8 +42,6 @@ should be using curl directly if your use case is not covered.
   * Set the downloaded file timestamp to the value provided by the server, if available;  
   * Disable **curl**'s URL globbing parser so **{}** and **\[\]** characters in URLs are not treated specially.
 
-<a name="options"></a>
-
 # Options
 
 
@@ -63,22 +57,16 @@ should be using curl directly if your use case is not covered.
 * **-h, --help**  
   Print help message.
 
-<a name="curl_options"></a>
-
 # Curl_options
 
 Any option supported by curl can be set here.
 This is not used by **wcurl**; it's instead forwarded to the curl invocation.
-
-<a name="url"></a>
 
 # Url
 
 Anything which is not a parameter will be considered an URL.
 **wcurl** will encode whitespaces and pass that to curl, which will perform the
 parsing of the URL.
-
-<a name="examples"></a>
 
 # Examples
 
@@ -94,8 +82,6 @@ Download a file passing the _--progress-bar_ and _--http2_ flags to curl:
 Resume from an interrupted download (if more options are used, this needs to be the last one in the list):  
 **wcurl --curl-options="--continue-at -" example.com/filename.txt**
 
-<a name="authors"></a>
-
 # Authors
 
 Samuel Henrique &lt;[samueloph@debian.org](mailto:samueloph@debian.org)&gt;  
@@ -103,20 +89,14 @@ Sergio Durigan Junior &lt;[sergiodj@debian.org](mailto:sergiodj@debian.org)&gt;
 Ryan Carsten Schmidt &lt;[git@ryandesign.com](mailto:git@ryandesign.com)&gt;  
 Ben Zanin  
 
-<a name="reporting-bugs"></a>
-
 # Reporting Bugs
 
 If you experience any problems with **wcurl** that you do not experience with curl,
 submit an issue [here](https://github.com/curl/wcurl/issues).
 
-<a name="copyright"></a>
-
 # Copyright
 
 **wcurl** is licensed under the curl license
-
-<a name="see-also"></a>
 
 # See Also
 
