@@ -28,39 +28,38 @@ Simply call **wcurl** with a list of URLs you want to download and **wcurl** wil
 sane defaults.
 
 If you need anything more complex, you can provide any of curl's supported
-parameters via the **--curl-options** option. Just beware that you likely
+parameters via the `--curl-options` option. Just beware that you likely
 should be using curl directly if your use case is not covered.
 
 
-* By default, **wcurl** will:    
-  * Encode whitespaces in URLs;  
-  * Download multiple URLs in parallel if the installed curl's version is >= 7.66.0;  
-  * Follow redirects;  
-  * Automatically choose a filename as output;  
-  * Avoid overwriting files if the installed curl's version is >= 7.83.0 (--no-clobber);  
-  * Perform retries;  
-  * Set the downloaded file timestamp to the value provided by the server, if available;  
-  * Disable **curl**'s URL globbing parser so **{}** and **\[\]** characters in URLs are not treated specially.
+* By default, **wcurl** will:
+  * Encode whitespaces in URLs;
+  * Download multiple URLs in parallel if the installed curl's version is >= 7.66.0;
+  * Follow redirects;
+  * Automatically choose a filename as output;
+  * Avoid overwriting files if the installed curl's version is >= 7.83.0 (`--no-clobber`);
+  * Perform retries;
+  * Set the downloaded file timestamp to the value provided by the server, if available;
+  * Disable **curl**'s URL globbing parser so `{}` and `[]` characters in URLs are not treated specially.
 
 # Options
 
 
-* **--curl-options, curl-options=&lt;CURL\_OPTIONS&gt;**...  
+* `--curl-options, curl-options=<CURL_OPTIONS>`...
+
   Specify extra options to be passed when invoking curl. May be specified more than once.
 
-* **--dry-run**  
+* `--dry-run`
+
   Don't actually execute curl, just print what would be invoked.
 
-* **-V, --version**  
+* `-V, --version`
+
   Print version information.
 
-* **-h, --help**  
+* `-h, --help`
+
   Print help message.
-
-# Curl_options
-
-Any option supported by curl can be set here.
-This is not used by **wcurl**; it's instead forwarded to the curl invocation.
 
 # Url
 
@@ -70,17 +69,21 @@ parsing of the URL.
 
 # Examples
 
-Download a single file:  
-**wcurl example.com/filename.txt**
+* Download a single file:
 
-Download two files in parallel:  
-**wcurl example.com/filename1.txt example.com/filename2.txt**
+  `wcurl example.com/filename.txt`
 
-Download a file passing the _--progress-bar_ and _--http2_ flags to curl:  
-**wcurl --curl-options="--progress-bar --http2" example.com/filename.txt**
+* Download two files in parallel:
 
-Resume from an interrupted download (if more options are used, this needs to be the last one in the list):  
-**wcurl --curl-options="--continue-at -" example.com/filename.txt**
+  `wcurl example.com/filename1.txt example.com/filename2.txt`
+
+* Download a file passing the _--progress-bar_ and _--http2_ flags to curl:
+
+  `wcurl --curl-options="--progress-bar --http2" example.com/filename.txt`
+
+* Resume from an interrupted download (if more options are used, this needs to be the last one in the list):
+
+  `wcurl --curl-options="--continue-at -" example.com/filename.txt`
 
 # Authors
 
