@@ -1,7 +1,8 @@
 COPYRIGHT AND PERMISSION NOTICE
 
-Copyright (C) Daniel Stenberg, <daniel@haxx.se>, and many
-contributors, see the THANKS file.
+Copyright (C) Samuel Henrique <samueloph@debian.org>, Sergio Durigan
+Junior <sergiodj@debian.org> and many contributors, see the AUTHORS
+file.
 
 All rights reserved.
 
