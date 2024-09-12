@@ -4,7 +4,7 @@ Copyright (C) Samuel Henrique <samueloph@debian.org>
 SPDX-License-Identifier: curl
 -->
 
-# [![wcurl logo](https://curl.se/wcurl/wcurl-logo.svg)](https://curl.se/wcurl)
+# [![wcurl logo](https://curl.se/logo/wcurl-logo.svg)](https://curl.se/wcurl)
 
 
 # wcurl(1)
