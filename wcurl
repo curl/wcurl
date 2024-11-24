@@ -49,8 +49,8 @@ usage()
     cat << _EOF_
 ${PROGRAM_NAME} -- a simple wrapper around curl to easily download files.
 
-Usage: ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>] [--dry-run] [--] <URL>...
-       ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>] [--dry-run] [--] <URL>...
+Usage: ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>] [--output <PATH>] [--dry-run] [--] <URL>...
+       ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>] [--output=PATH] [--dry-run] [--] <URL>...
        ${PROGRAM_NAME} -h|--help
        ${PROGRAM_NAME} -V|--version
 
@@ -59,6 +59,9 @@ Options:
   --curl-options <CURL_OPTIONS>: Specify extra options to be
                                  passed when invoking curl. May be
                                  specified more than once.
+
+  -o,--output: Use explicit output path instead of curl's --remote-name-all
+               logic.
 
   --dry-run: Don't actually execute curl, just print what would be
              invoked.
@@ -88,13 +91,16 @@ CURL_OPTIONS=""
 # The URLs to be downloaded.
 URLS=""
 
+# Defaults to --remote-name-all. Can be overriden to explicit file name using
+# -o/--output.
+OUTPUT="--remote-name-all"
+
 # The parameters that will be passed per-URL to curl.
 readonly PER_URL_PARAMETERS="\
     --fail \
     --globoff \
     --location \
     --proto-default https \
-    --remote-name-all \
     --remote-time \
     --retry 10 \
     --retry-max-time 10 "
@@ -163,7 +169,7 @@ exec_curl() {
     NEXT_PARAMETER=""
     for url in ${URLS}; do
         # shellcheck disable=SC2086
-        set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${CURL_HAS_NO_CLOBBER} ${CURL_OPTIONS} "${url}"
+        set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${CURL_HAS_NO_CLOBBER} ${CURL_OPTIONS} "${OUTPUT}" "${url}"
         NEXT_PARAMETER="--next"
     done
 
@@ -189,6 +195,16 @@ while [ -n "${1-}" ]; do
 
         --dry-run)
             DRY_RUN="true"
+            ;;
+
+        --output=*)
+            opt=$(printf "%s\n" "${1}" | sed 's/^--output=//')
+            OUTPUT="-o${opt}"
+            ;;
+
+        -o|--output)
+            shift
+            OUTPUT="-o${1}"
             ;;
 
         -h|--help)
