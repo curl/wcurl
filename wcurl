@@ -122,17 +122,14 @@ matches()
 # Print the given string percent-decoded.
 percent_decode()
 {
-    # Encodings of control characters and these additional ASCII characters
-    # are passed through without decoding.
-    forbidden_chars=/
+    # Encodings of control characters (00-1F) are passed through without decoding.
     printf "%s\n" "${1}" | fold -w1 | while IFS= read -r decode_out; do
         if [ "${decode_out}" = % ] && IFS= read -r decode_hex1; then
             decode_out="${decode_out}${decode_hex1}"
             if IFS= read -r decode_hex2; then
                 decode_out="${decode_out}${decode_hex2}"
                 if matches "${decode_hex1}" "23456789abcdefABCDEF" && matches "${decode_hex2}" "0123456789abcdefABCDEF"; then
-                    decode_char="$(printf "\\$(printf %o "0x${decode_hex1}${decode_hex2}")")"
-                    matches "${decode_char}" "${forbidden_chars}" || decode_out="${decode_char}"
+                    decode_out="$(printf "%b" "\\$(printf %o "0x${decode_hex1}${decode_hex2}")")"
                 fi
             fi
         fi
