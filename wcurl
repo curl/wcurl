@@ -112,7 +112,9 @@ sanitize()
 
 # Indicate via exit code whether the string given in the first parameter
 # consists solely of characters from the string given in the second parameter.
-matches()
+# In other words, it returns 0 if the first parameter only contains characters
+# from the second parameter, e.g.: Are $1 characters a subset of $2 characters?
+is_subset_of()
 {
     case "${1}" in
         *[!${2}]*|'') return 1;;
@@ -123,12 +125,18 @@ matches()
 percent_decode()
 {
     # Encodings of control characters (00-1F) are passed through without decoding.
+    # Iterate on the input character-by-character, decoding it.
     printf "%s\n" "${1}" | fold -w1 | while IFS= read -r decode_out; do
+        # If character is a "%", read the next character as decode_hex1.
         if [ "${decode_out}" = % ] && IFS= read -r decode_hex1; then
             decode_out="${decode_out}${decode_hex1}"
+            # If there's one more character, read it as decode_hex2.
             if IFS= read -r decode_hex2; then
                 decode_out="${decode_out}${decode_hex2}"
-                if matches "${decode_hex1}" "23456789abcdefABCDEF" && matches "${decode_hex2}" "0123456789abcdefABCDEF"; then
+                # Skip decoding if this is a control character (00-1F).
+                if is_subset_of "${decode_hex1}" "23456789abcdefABCDEF" && \
+                    is_subset_of "${decode_hex2}" "0123456789abcdefABCDEF"; then
+                    # Use printf to decode it into octal and then decode it to the final format.
                     decode_out="$(printf "%b" "\\$(printf %o "0x${decode_hex1}${decode_hex2}")")"
                 fi
             fi
@@ -144,6 +152,7 @@ get_url_filename()
     hostname_and_path="$(printf %s "${1}" | sed -e 's,^[^/]*//,,' -e 's,?.*$,,')"
     # If what remains contains a slash, there's a path; return it percent-decoded.
     case "${hostname_and_path}" in
+        # sed to remove everything preceeding the last '/', e.g.: "example/something" becomes "something"
         */*) percent_decode "$(printf %s "${hostname_and_path}" | sed -e 's,^.*/,,')";;
     esac
     # No slash means there was just a hostname and no path; return empty string.
