@@ -112,6 +112,46 @@ testUrlStartingWithDash()
     assertEquals "${ret}" "Unknown option: '-example.com'."
 }
 
+testUrlDefaultName()
+{
+    url='example%20with%20spaces.com'
+    ret=$(${WCURL_CMD} ${url} 2>&1)
+    assertContains "Verify whether 'wcurl' chooses the correct default filename when there's no path in the URL" "${ret}" 'index.html'
+}
+
+testUrlDecondingWhitespaces()
+{
+    url='example.com/filename%20with%20spaces'
+    ret=$(${WCURL_CMD} ${url} 2>&1)
+    assertContains "Verify whether 'wcurl' successfully decodes percent-encoded whitespaces in URLs" "${ret}" 'filename with spaces'
+}
+
+# Test decoding a bunch of different languages (that don't use the latin
+# alphabet), we could split each language on its own test, but for now it
+# doesn't make a difference.
+testUrlDecondingNonLatinLanguages()
+{
+    # Arabic
+    url='example.com/%D8%AA%D8%B1%D9%85%D9%8A%D8%B2_%D8%A7%D9%84%D9%86%D8%B3%D8%A8%D8%A9_%D8%A7%D9%84%D9%85%D8%A6%D9%88%D9%8A%D8%A9'
+    ret=$(${WCURL_CMD} ${url} 2>&1)
+    assertContains "Verify whether 'wcurl' successfully decodes percent-encoded Arabic in URLs" "${ret}" 'ترميز_النسبة_المئوية'
+
+    # Persian
+    url='example.com/%DA%A9%D8%AF%D8%A8%D9%86%D8%AF%DB%8C_%D8%AF%D8%B1%D8%B5%D8%AF%DB%8C'
+    ret=$(${WCURL_CMD} ${url} 2>&1)
+    assertContains "Verify whether 'wcurl' successfully decodes percent-encoded Persian in URLs" "${ret}" 'کدبندی_درصدی'
+
+    # Japanese
+    url='example.com/%E3%83%91%E3%83%BC%E3%82%BB%E3%83%B3%E3%83%88%E3%82%A8%E3%83%B3%E3%82%B3%E3%83%BC%E3%83%87%E3%82%A3%E3%83%B3%E3%82%B0'
+    ret=$(${WCURL_CMD} ${url} 2>&1)
+    assertContains "Verify whether 'wcurl' successfully decodes percent-encoded Japanese in URLs" "${ret}" 'パーセントエンコーディング'
+
+    # Korean
+    url='example.com/%ED%8D%BC%EC%84%BC%ED%8A%B8_%EC%9D%B8%EC%BD%94%EB%94%A9'
+    ret=$(${WCURL_CMD} ${url} 2>&1)
+    assertContains "Verify whether 'wcurl' successfully decodes percent-encoded Korean in URLs" "${ret}" '퍼센트_인코딩'
+}
+
 ## Ideas for tests:
 ##
 ## - URL with whitespace
