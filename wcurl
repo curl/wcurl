@@ -113,7 +113,8 @@ sanitize()
 }
 
 # Execute curl with the list of URLs provided by the user.
-exec_curl() {
+exec_curl()
+{
     CMD="curl "
 
     # Store version to check if it supports --no-clobber and --parallel.
