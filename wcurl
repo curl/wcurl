@@ -48,8 +48,8 @@ usage()
     cat << _EOF_
 ${PROGRAM_NAME} -- a simple wrapper around curl to easily download files.
 
-Usage: ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>] [--dry-run] [--] <URL>...
-       ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>] [--dry-run] [--] <URL>...
+Usage: ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>] [--dry-run] [--no-decode-filename] [--] <URL>...
+       ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>] [--dry-run] [--no-decode-filename] [--] <URL>...
        ${PROGRAM_NAME} -h|--help
        ${PROGRAM_NAME} -V|--version
 
@@ -58,6 +58,8 @@ Options:
   --curl-options <CURL_OPTIONS>: Specify extra options to be
                                  passed when invoking curl. May be
                                  specified more than once.
+
+  --no-decode-filename: Don't percent-decode the output filename.
 
   --dry-run: Don't actually execute curl, just print what would be
              invoked.
@@ -134,8 +136,10 @@ percent_decode()
             if IFS= read -r decode_hex2; then
                 decode_out="${decode_out}${decode_hex2}"
                 # Skip decoding if this is a control character (00-1F).
+                # Skip decoding if DECODE_FILENAME is not "true".
                 if is_subset_of "${decode_hex1}" "23456789abcdefABCDEF" && \
-                    is_subset_of "${decode_hex2}" "0123456789abcdefABCDEF"; then
+                    is_subset_of "${decode_hex2}" "0123456789abcdefABCDEF" && \
+                    [ "${DECODE_FILENAME}" = "true" ]; then
                     # Use printf to decode it into octal and then decode it to the final format.
                     decode_out="$(printf "%b" "\\$(printf %o "0x${decode_hex1}${decode_hex2}")")"
                 fi
@@ -220,6 +224,9 @@ exec_curl()
     fi
 }
 
+# Default to decoding the output filename
+DECODE_FILENAME="true"
+
 # Use "${1-}" in order to avoid errors because of 'set -u'.
 while [ -n "${1-}" ]; do
     case "${1}" in
@@ -235,6 +242,10 @@ while [ -n "${1-}" ]; do
 
         --dry-run)
             DRY_RUN="true"
+            ;;
+
+        --no-decode-filename)
+            DECODE_FILENAME="false"
             ;;
 
         -h|--help)

@@ -119,11 +119,27 @@ testUrlDefaultName()
     assertContains "Verify whether 'wcurl' chooses the correct default filename when there's no path in the URL" "${ret}" 'index.html'
 }
 
-testUrlDecondingWhitespaces()
+testUrlDecodingWhitespaces()
 {
     url='example.com/filename%20with%20spaces'
     ret=$(${WCURL_CMD} ${url} 2>&1)
     assertContains "Verify whether 'wcurl' successfully decodes percent-encoded whitespaces in URLs" "${ret}" 'filename with spaces'
+}
+
+testUrlDecodingWhitespacesTwoFiles()
+{
+    url='example.com/filename%20with%20spaces'
+    url_2='example.com/filename2%20with%20spaces'
+    ret=$(${WCURL_CMD} ${url} ${url_2} 2>&1)
+    assertContains "Verify whether 'wcurl' successfully decodes percent-encoded whitespaces in URLs" "${ret}" 'filename with spaces'
+    assertContains "Verify whether 'wcurl' successfully decodes percent-encoded whitespaces in URLs" "${ret}" 'filename2 with spaces'
+}
+
+testUrlDecodingDisabled()
+{
+    url='example.com/filename%20with%20spaces'
+    ret=$(${WCURL_CMD} --no-decode-filename ${url} 2>&1)
+    assertContains "Verify whether 'wcurl' successfully decodes percent-encoded whitespaces in URLs" "${ret}" 'filename%20with%20spaces'
 }
 
 # Test decoding a bunch of different languages (that don't use the latin
