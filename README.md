@@ -1,5 +1,7 @@
 <!--
-Copyright (C) Samuel Henrique <samueloph@debian.org>
+Copyright (C) Samuel Henrique <samueloph@debian.org>, Sergio Durigan
+Junior <sergiodj@debian.org> and many contributors, see the AUTHORS
+file.
 
 SPDX-License-Identifier: curl
 -->
@@ -102,8 +104,7 @@ script:
 
 Samuel Henrique &lt;[samueloph@debian.org](mailto:samueloph@debian.org)&gt;  
 Sergio Durigan Junior &lt;[sergiodj@debian.org](mailto:sergiodj@debian.org)&gt;  
-Ryan Carsten Schmidt &lt;[git@ryandesign.com](mailto:git@ryandesign.com)&gt;  
-Ben Zanin  
+and many contributors, see the AUTHORS file.
 
 # Reporting Bugs
 

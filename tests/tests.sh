@@ -4,8 +4,9 @@
 #
 # This is wcurl's testsuite.
 #
-# Copyright (C) Sergio Durigan Junior, <sergiodj@debian.org>
-# Copyright (C) Guilherme Puida Moreira, <guilherme@puida.xyz>
+# Copyright (C) Samuel Henrique <samueloph@debian.org>, Sergio Durigan
+# Junior <sergiodj@debian.org> and many contributors, see the AUTHORS
+# file.
 #
 # Permission to use, copy, modify, and distribute this software for any purpose
 # with or without fee is hereby granted, provided that the above copyright
