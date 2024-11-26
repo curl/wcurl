@@ -119,6 +119,13 @@ testUrlDefaultName()
     assertContains "Verify whether 'wcurl' chooses the correct default filename when there's no path in the URL" "${ret}" 'index.html'
 }
 
+testUrlDefaultNameTrailingSlash()
+{
+    url='example%20with%20spaces.com/'
+    ret=$(${WCURL_CMD} ${url} 2>&1)
+    assertContains "Verify whether 'wcurl' chooses the correct default filename when there's no path in the URL and the URl ends with a slash" "${ret}" 'index.html'
+}
+
 testUrlDecodingWhitespaces()
 {
     url='example.com/filename%20with%20spaces'
@@ -142,10 +149,24 @@ testUrlDecodingDisabled()
     assertContains "Verify whether 'wcurl' successfully decodes percent-encoded whitespaces in URLs" "${ret}" 'filename%20with%20spaces'
 }
 
+testUrlDecodingWhitespacesQueryString()
+{
+    url='example.com/filename%20with%20spaces?query=string'
+    ret=$(${WCURL_CMD} ${url} 2>&1)
+    assertContains "Verify whether 'wcurl' successfully decodes percent-encoded whitespaces in URLs with query strings" "${ret}" 'filename with spaces'
+}
+
+testUrlDecodingWhitespacesTrailingSlash()
+{
+    url='example.com/filename%20with%20spaces/'
+    ret=$(${WCURL_CMD} ${url} 2>&1)
+    assertContains "Verify whether 'wcurl' successfully uses the default filename when the URL ends with a slash" "${ret}" 'index.html'
+}
+
 # Test decoding a bunch of different languages (that don't use the latin
 # alphabet), we could split each language on its own test, but for now it
 # doesn't make a difference.
-testUrlDecondingNonLatinLanguages()
+testUrlDecodingNonLatinLanguages()
 {
     # Arabic
     url='example.com/%D8%AA%D8%B1%D9%85%D9%8A%D8%B2_%D8%A7%D9%84%D9%86%D8%B3%D8%A8%D8%A9_%D8%A7%D9%84%D9%85%D8%A6%D9%88%D9%8A%D8%A9'
