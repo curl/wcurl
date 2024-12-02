@@ -16,8 +16,8 @@ SPDX-License-Identifier: curl
 
 # Synopsis
 
-    wcurl [--curl-options <CURL_OPTIONS>]... [--dry-run] [--] <URL>...
-    wcurl [--curl-options=<CURL_OPTIONS>]... [--dry-run] [--] <URL>...
+    wcurl [--curl-options <CURL_OPTIONS>]... [--dry-run] [--no-decode-filename] [--] <URL>...
+    wcurl [--curl-options=<CURL_OPTIONS>]... [--dry-run] [--no-decode-filename] [--] <URL>...
     wcurl -V|--version
     wcurl -h|--help
 
@@ -35,7 +35,7 @@ should be using curl directly if your use case is not covered.
 
 
 * By default, **wcurl** will:
-  * Encode whitespaces in URLs;
+  * Percent-encode whitespaces in URLs;
   * Download multiple URLs in parallel if the installed curl's version is >= 7.66.0;
   * Follow redirects;
   * Automatically choose a filename as output;
@@ -43,6 +43,8 @@ should be using curl directly if your use case is not covered.
   * Perform retries;
   * Set the downloaded file timestamp to the value provided by the server, if available;
   * Disable **curl**'s URL globbing parser so `{}` and `[]` characters in URLs are not treated specially.
+  * Percent-decode the resulting filename.
+  * Use "index.html" as default filename if there's none in the URL.
 
 # Options
 
@@ -50,6 +52,9 @@ should be using curl directly if your use case is not covered.
 * `--curl-options, curl-options=<CURL_OPTIONS>`...
 
   Specify extra options to be passed when invoking curl. May be specified more than once.
+
+* `--no-decode-filename`
+  Don't percent-decode the output filename, even if the percent-encoding in the URL was done by wcurl, e.g.: The URL contained whitespaces.
 
 * `--dry-run`
 
@@ -66,7 +71,7 @@ should be using curl directly if your use case is not covered.
 # Url
 
 Anything which is not a parameter will be considered an URL.
-**wcurl** will encode whitespaces and pass that to curl, which will perform the
+**wcurl** will percent-encode whitespaces and pass that to curl, which will perform the
 parsing of the URL.
 
 # Examples
