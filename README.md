@@ -14,8 +14,8 @@ SPDX-License-Identifier: curl
 
 # Synopsis
 
-    wcurl [--curl-options <CURL_OPTIONS>]... [--dry-run] [--] <URL>...
-    wcurl [--curl-options=<CURL_OPTIONS>]... [--dry-run] [--] <URL>...
+    wcurl [--curl-options <CURL_OPTIONS>]... [-o|-O|--output <PATH>] [--dry-run] [--] <URL>...
+    wcurl [--curl-options=<CURL_OPTIONS>]... [--output=<PATH>] [--dry-run] [--] <URL>...
     wcurl -V|--version
     wcurl -h|--help
 
@@ -48,6 +48,12 @@ should be using curl directly if your use case is not covered.
 * `--curl-options, curl-options=<CURL_OPTIONS>`...
 
   Specify extra options to be passed when invoking curl. May be specified more than once.
+
+* `-o, -O, --output=<PATH>`
+
+  Use explicit output path instead of curl's --remote-name logic. If multiple
+  URLs are provided, all files will have the same name with a number appended to
+  the end (curl >= 7.83.0).
 
 * `--dry-run`
 

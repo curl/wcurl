@@ -49,28 +49,30 @@ usage()
     cat << _EOF_
 ${PROGRAM_NAME} -- a simple wrapper around curl to easily download files.
 
-Usage: ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>] [--output <PATH>] [--dry-run] [--] <URL>...
-       ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>] [--output=PATH] [--dry-run] [--] <URL>...
+Usage: ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>]... [-o|-O|--output <PATH>] [--dry-run] [--] <URL>...
+       ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>]... [--output=<PATH>] [--dry-run] [--] <URL>...
        ${PROGRAM_NAME} -h|--help
        ${PROGRAM_NAME} -V|--version
 
 Options:
 
-  --curl-options <CURL_OPTIONS>: Specify extra options to be
-                                 passed when invoking curl. May be
+  --curl-options <CURL_OPTIONS>: Specify extra options to be passed when invoking curl. May be
                                  specified more than once.
 
-  -o,--output: Use explicit output path instead of curl's --remote-name-all
-               logic.
+  -o, -O, --output <PATH>: Use explicit output path instead of curl's --remote-name logic. If
+                           multiple URLs are provided, all files will have the same name with a
+                           number appended to the end (curl >= 7.83.0).
 
-  --dry-run: Don't actually execute curl, just print what would be
-             invoked.
+  --dry-run: Don't actually execute curl, just print what would be invoked.
 
-  -V,--version: Print version information.
+  -V, --version: Print version information.
 
-  -h,--help: Print this usage message.
+  -h, --help: Print this usage message.
 
-  <URL>: The URL to be downloaded.  May be specified more than once.
+  <URL>: The URL to be downloaded. May be specified more than once.
+
+  <CURL_OPTIONS>: Any option supported by curl can be set here. This is not used by wcurl; it's
+                 instead forwarded to the curl invocation.
 _EOF_
 }
 
@@ -92,8 +94,9 @@ CURL_OPTIONS=""
 URLS=""
 
 # Defaults to --remote-name-all. Can be overriden to explicit file name using
-# -o/--output.
-OUTPUT="--remote-name-all"
+# -o/-O/--output.
+OUTPUT_PARAMETER="--remote-name-all"
+OUTPUT_PATH=""
 
 # The parameters that will be passed per-URL to curl.
 readonly PER_URL_PARAMETERS="\
@@ -169,7 +172,7 @@ exec_curl() {
     NEXT_PARAMETER=""
     for url in ${URLS}; do
         # shellcheck disable=SC2086
-        set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${CURL_HAS_NO_CLOBBER} ${CURL_OPTIONS} "${OUTPUT}" "${url}"
+        set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${CURL_HAS_NO_CLOBBER} ${CURL_OPTIONS} ${OUTPUT_PARAMETER} "${OUTPUT_PATH}" "${url}"
         NEXT_PARAMETER="--next"
     done
 
@@ -199,12 +202,14 @@ while [ -n "${1-}" ]; do
 
         --output=*)
             opt=$(printf "%s\n" "${1}" | sed 's/^--output=//')
-            OUTPUT="-o${opt}"
+            OUTPUT_PARAMETER="--output"
+            OUTPUT_PATH="${opt}"
             ;;
 
-        -o|--output)
+        -o|-O|--output)
             shift
-            OUTPUT="-o${1}"
+            OUTPUT_PARAMETER="--output"
+            OUTPUT_PATH="${1}"
             ;;
 
         -h|--help)
