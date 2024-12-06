@@ -118,26 +118,23 @@ exec_curl()
 
     # Store version to check if it supports --no-clobber and --parallel.
     curl_version=$($CMD --version | cut -f2 -d' ' | head -n1)
+    curl_version_major=$(echo "$curl_version" | cut -f1 -d.)
+    curl_version_minor=$(echo "$curl_version" | cut -f2 -d.)
 
+    CURL_HAS_NO_CLOBBER=""
+    CURL_HAS_PARALLEL=""
     # --no-clobber is only supported since 7.83.0.
     # --parallel is only supported since 7.66.0.
-    if [ "$(echo "$curl_version" | cut -f1 -d.)" -ge 8 ]; then
+    if [ "${curl_version_major}" -ge 8 ]; then
         CURL_HAS_NO_CLOBBER="--no-clobber"
         CURL_HAS_PARALLEL="--parallel"
-    elif [ "$(echo "$curl_version" | cut -f1 -d.)" -eq 7 ];then
-        if [ "$(echo "$curl_version" | cut -f2 -d.)" -ge 83 ]; then
+    elif [ "${curl_version_major}" -eq 7 ];then
+        if [ "${curl_version_minor}" -ge 83 ]; then
             CURL_HAS_NO_CLOBBER="--no-clobber"
-        else
-            CURL_HAS_NO_CLOBBER=""
         fi
-        if [ "$(echo "$curl_version" | cut -f2 -d.)" -ge 66 ]; then
+        if [ "${curl_version_minor}" -ge 66 ]; then
             CURL_HAS_PARALLEL="--parallel"
-        else
-            CURL_HAS_PARALLEL=""
         fi
-    else
-        CURL_HAS_NO_CLOBBER=""
-        CURL_HAS_PARALLEL=""
     fi
 
     # Detecting whether we need --parallel.  It's easier to rely on
