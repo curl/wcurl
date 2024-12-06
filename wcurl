@@ -48,8 +48,8 @@ usage()
     cat << _EOF_
 ${PROGRAM_NAME} -- a simple wrapper around curl to easily download files.
 
-Usage: ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>] [--dry-run] [--] <URL>...
-       ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>] [--dry-run] [--] <URL>...
+Usage: ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>] [--dry-run] [--no-decode-filename] [--] <URL>...
+       ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>] [--dry-run] [--no-decode-filename] [--] <URL>...
        ${PROGRAM_NAME} -h|--help
        ${PROGRAM_NAME} -V|--version
 
@@ -59,6 +59,11 @@ Options:
                                  passed when invoking curl. May be
                                  specified more than once.
 
+  --no-decode-filename: Don't percent-decode the output filename,
+                        even if the percent-encoding in the URL was
+                        done by wcurl, e.g.: The URL contained
+                        whitespaces.
+
   --dry-run: Don't actually execute curl, just print what would be
              invoked.
 
@@ -66,7 +71,7 @@ Options:
 
   -h,--help: Print this usage message.
 
-  <URL>: The URL to be downloaded.  May be specified more than once.
+  <URL>: The URL to be downloaded. May be specified more than once.
 _EOF_
 }
 
@@ -93,7 +98,6 @@ readonly PER_URL_PARAMETERS="\
     --globoff \
     --location \
     --proto-default https \
-    --remote-name-all \
     --remote-time \
     --retry 10 \
     --retry-max-time 10 "
@@ -109,6 +113,56 @@ sanitize()
     fi
 
     readonly CURL_OPTIONS URLS DRY_RUN
+}
+
+# Indicate via exit code whether the string given in the first parameter
+# consists solely of characters from the string given in the second parameter.
+# In other words, it returns 0 if the first parameter only contains characters
+# from the second parameter, e.g.: Are $1 characters a subset of $2 characters?
+is_subset_of()
+{
+    case "${1}" in
+        *[!${2}]*|'') return 1;;
+    esac
+}
+
+# Print the given string percent-decoded.
+percent_decode()
+{
+    # Encodings of control characters (00-1F) are passed through without decoding.
+    # Iterate on the input character-by-character, decoding it.
+    printf "%s\n" "${1}" | fold -w1 | while IFS= read -r decode_out; do
+        # If character is a "%", read the next character as decode_hex1.
+        if [ "${decode_out}" = % ] && IFS= read -r decode_hex1; then
+            decode_out="${decode_out}${decode_hex1}"
+            # If there's one more character, read it as decode_hex2.
+            if IFS= read -r decode_hex2; then
+                decode_out="${decode_out}${decode_hex2}"
+                # Skip decoding if this is a control character (00-1F).
+                # Skip decoding if DECODE_FILENAME is not "true".
+                if is_subset_of "${decode_hex1}" "23456789abcdefABCDEF" && \
+                    is_subset_of "${decode_hex2}" "0123456789abcdefABCDEF" && \
+                    [ "${DECODE_FILENAME}" = "true" ]; then
+                    # Use printf to decode it into octal and then decode it to the final format.
+                    decode_out="$(printf "%b" "\\$(printf %o "0x${decode_hex1}${decode_hex2}")")"
+                fi
+            fi
+        fi
+        printf %s "${decode_out}"
+    done
+}
+
+# Print the percent-decoded filename portion of the given URL.
+get_url_filename()
+{
+    # Remove protocol and query string if present.
+    hostname_and_path="$(printf %s "${1}" | sed -e 's,^[^/]*//,,' -e 's,?.*$,,')"
+    # If what remains contains a slash, there's a path; return it percent-decoded.
+    case "${hostname_and_path}" in
+        # sed to remove everything preceeding the last '/', e.g.: "example/something" becomes "something"
+        */*) percent_decode "$(printf %s "${hostname_and_path}" | sed -e 's,^.*/,,')";;
+    esac
+    # No slash means there was just a hostname and no path; return empty string.
 }
 
 # Execute curl with the list of URLs provided by the user.
@@ -159,8 +213,10 @@ exec_curl()
 
     NEXT_PARAMETER=""
     for url in ${URLS}; do
+        filename="$(get_url_filename "${url}")"
+        [ -z "${filename}" ] && filename=index.html
         # shellcheck disable=SC2086
-        set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${CURL_HAS_NO_CLOBBER} ${CURL_OPTIONS} "${url}"
+        set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${CURL_HAS_NO_CLOBBER} ${CURL_OPTIONS} --output "${filename}" "${url}"
         NEXT_PARAMETER="--next"
     done
 
@@ -170,6 +226,9 @@ exec_curl()
         printf "%s\n" "$@"
     fi
 }
+
+# Default to decoding the output filename
+DECODE_FILENAME="true"
 
 # Use "${1-}" in order to avoid errors because of 'set -u'.
 while [ -n "${1-}" ]; do
@@ -186,6 +245,10 @@ while [ -n "${1-}" ]; do
 
         --dry-run)
             DRY_RUN="true"
+            ;;
+
+        --no-decode-filename)
+            DECODE_FILENAME="false"
             ;;
 
         -h|--help)
