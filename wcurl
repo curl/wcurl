@@ -48,28 +48,34 @@ usage()
     cat << _EOF_
 ${PROGRAM_NAME} -- a simple wrapper around curl to easily download files.
 
-Usage: ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>] [--dry-run] [--no-decode-filename] [--] <URL>...
-       ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>] [--dry-run] [--no-decode-filename] [--] <URL>...
+Usage: ${PROGRAM_NAME} <URL>...
+       ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>]... [--no-decode-filename] [-o|-O|--output <PATH>] [--dry-run] [--] <URL>...
+       ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>]... [--no-decode-filename] [--output=<PATH>] [--dry-run] [--] <URL>...
        ${PROGRAM_NAME} -h|--help
        ${PROGRAM_NAME} -V|--version
 
 Options:
 
-  --curl-options <CURL_OPTIONS>: Specify extra options to be
-                                 passed when invoking curl. May be
+  --curl-options <CURL_OPTIONS>: Specify extra options to be passed when invoking curl. May be
                                  specified more than once.
 
-  --no-decode-filename: Don't percent-decode the output filename,
-                        even if the percent-encoding in the URL was
-                        done by wcurl, e.g.: The URL contained
-                        whitespaces.
+  -o, -O, --output <PATH>: Use the provided output path instead of getting it from the URL. If
+                           multiple URLs are provided, all files will have the same name with a
+                           number appended to the end (curl >= 7.83.0).
 
-  --dry-run: Don't actually execute curl, just print what would be
-             invoked.
+  --no-decode-filename: Don't percent-decode the output filename, even if the percent-encoding in
+                        the URL was done by wcurl, e.g.: The URL contained whitespaces.
 
-  -V,--version: Print version information.
+  --dry-run: Don't actually execute curl, just print what would be invoked.
 
-  -h,--help: Print this usage message.
+  -V, --version: Print version information.
+
+  -h, --help: Print this usage message.
+
+  <URL>: The URL to be downloaded. May be specified more than once.
+
+  <CURL_OPTIONS>: Any option supported by curl can be set here. This is not used by wcurl; it's
+                 instead forwarded to the curl invocation.
 
   <URL>: The URL to be downloaded. May be specified more than once.
 _EOF_
@@ -92,6 +98,11 @@ CURL_OPTIONS=""
 # The URLs to be downloaded.
 URLS=""
 
+# Will be set to the percent-decoded filename parsed from the URL, unless
+# --output or --no-decode-filename are used.
+OUTPUT_PATH=""
+HAS_USER_SET_OUTPUT="false"
+
 # The parameters that will be passed per-URL to curl.
 readonly PER_URL_PARAMETERS="\
     --fail \
@@ -112,7 +123,7 @@ sanitize()
         error "You must provide at least one URL to download."
     fi
 
-    readonly CURL_OPTIONS URLS DRY_RUN
+    readonly CURL_OPTIONS URLS DRY_RUN HAS_USER_SET_OUTPUT
 }
 
 # Indicate via exit code whether the string given in the first parameter
@@ -213,10 +224,14 @@ exec_curl()
 
     NEXT_PARAMETER=""
     for url in ${URLS}; do
-        filename="$(get_url_filename "${url}")"
-        [ -z "${filename}" ] && filename=index.html
+        # If the user did not provide an output path, define one.
+        if [ "${HAS_USER_SET_OUTPUT}" = "false" ]; then
+            OUTPUT_PATH="$(get_url_filename "${url}")"
+            # If we could not get a path from the URL, use the default: index.html.
+            [ -z "${OUTPUT_PATH}" ] && OUTPUT_PATH=index.html
+        fi
         # shellcheck disable=SC2086
-        set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${CURL_HAS_NO_CLOBBER} ${CURL_OPTIONS} --output "${filename}" "${url}"
+        set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${CURL_HAS_NO_CLOBBER} ${CURL_OPTIONS} --output "${OUTPUT_PATH}" "${url}"
         NEXT_PARAMETER="--next"
     done
 
@@ -245,6 +260,18 @@ while [ -n "${1-}" ]; do
 
         --dry-run)
             DRY_RUN="true"
+            ;;
+
+        --output=*)
+            opt=$(printf "%s\n" "${1}" | sed 's/^--output=//')
+            HAS_USER_SET_OUTPUT="true"
+            OUTPUT_PATH="${opt}"
+            ;;
+
+        -o|-O|--output)
+            shift
+            HAS_USER_SET_OUTPUT="true"
+            OUTPUT_PATH="${1}"
             ;;
 
         --no-decode-filename)

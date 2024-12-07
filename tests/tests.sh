@@ -112,6 +112,14 @@ testUrlStartingWithDash()
     assertEquals "${ret}" "Unknown option: '-example.com'."
 }
 
+testOutputFileName()
+{
+    url='example.com'
+    ret=$(${WCURL_CMD} -o "test filename" ${url} 2>&1)
+    assertContains "Verify whether 'wcurl' correctly sets a custom output filename" "${ret}" '--output'
+    assertContains "Verify whether 'wcurl' correctly sets a custom output filename" "${ret}" 'test filename'
+}
+
 testUrlDefaultName()
 {
     url='example%20with%20spaces.com'

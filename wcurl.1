@@ -27,8 +27,9 @@
 - a simple wrapper around curl to easily download files.
 .SH SYNOPSIS
 .nf
-\fBwcurl [\-\-curl\-options \fI<CURL_OPTIONS>\fP]... [\-\-dry\-run] [\-\-no\-decode\-filename] [\-\-] \fI<URL>\fP...\fR
-\fBwcurl [\-\-curl\-options=\fI<CURL_OPTIONS>\fP]... [\-\-dry\-run] [\-\-no\-decode\-filename] [\-\-] \fI<URL>\fP...\fR
+\fBwcurl \fI<URL>\fP...\fR
+\fBwcurl [\-\-curl\-options \fI<CURL_OPTIONS>\fP]... [\-\-dry\-run] [\-\-no\-decode\-filename] [\-o|\-O|\-\-output <PATH>] [\-\-] \fI<URL>\fP...\fR
+\fBwcurl [\-\-curl\-options=\fI<CURL_OPTIONS>\fP]... [\-\-dry\-run] [\-\-no\-decode\-filename] [\-\-output=<PATH>] [\-\-] \fI<URL>\fP...\fR
 \fBwcurl \-V|\-\-version\fR
 \fBwcurl \-h|\-\-help\fR
 .fi
@@ -71,6 +72,11 @@ By default, \fBwcurl\fR will:
 .TP
 \fB\-\-curl\-options, \-\-curl\-options=\fI<CURL_OPTIONS>\fR...\fR
 Specify extra options to be passed when invoking curl. May be specified more than once.
+.TP
+\fB\-o, \-O, \-\-output=\fI<PATH>\fR...\fR
+Use the provided output path instead of getting it from the URL. If multiple
+URLs are provided, all files will have the same name with a number appended to
+the end (curl >= 7.83.0).
 .TP
 \fB\-\-dry\-run\fR
 Don't actually execute curl, just print what would be invoked.
