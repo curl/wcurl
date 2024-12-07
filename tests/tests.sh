@@ -26,7 +26,8 @@
 #
 # SPDX-License-Identifier: curl
 
-readonly ROOTDIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+ROOTDIR=$(CDPATH=$(cd -- "$(dirname -- "$0")/.." && pwd))
+readonly ROOTDIR
 export PATH="${ROOTDIR}:${PATH}"
 
 readonly WCURL_CMD="wcurl --dry-run "
@@ -67,8 +68,9 @@ testParallelIfMoreThanOneUrl()
 {
     # TODO: This test is wrong for curl 7.65 or older, since --parallel was only introduced in 7.66.
     #       We should check curl's version and skip this test instead.
-    urls='example.com/1 example.com/2'
-    ret=$(${WCURL_CMD} ${urls})
+    url_1='example.com/1'
+    url_2='example.com/2'
+    ret=$(${WCURL_CMD} ${url_1} ${url_2})
     assertContains "Verify whether 'wcurl' uses '--parallel' if more than one url is provided" "${ret}" '--parallel'
 }
 
@@ -82,7 +84,7 @@ testEncodingWhitespace()
 testDoubleDash()
 {
     params='example.com --curl-options=abc'
-    ret=$(${WCURL_CMD} -- ${params})
+    ret=$(${WCURL_CMD} -- "${params}")
     assertTrue "Verify whether 'wcurl' accepts '--' without erroring" "$?"
     assertContains "Verify whether 'wcurl' considers everywhing after '--' a url" "${ret}" '--curl-options=abc'
 }
@@ -90,7 +92,7 @@ testDoubleDash()
 testCurlOptions()
 {
     params='example.com --curl-options=--foo --curl-options --bar'
-    ret=$(${WCURL_CMD} ${params})
+    ret=$(${WCURL_CMD} "${params}")
     assertTrue "Verify 'wcurl' accepts '--curl-options' with and without trailing '='" "$?"
     assertContains "Verify 'wcurl' correctly passes through --curl-options=<option>" "${ret}" '--foo'
     assertContains "Verify 'wcurl' correctly passes through --curl-options <option>" "${ret}" '--bar'
@@ -98,8 +100,10 @@ testCurlOptions()
 
 testNextAmount()
 {
-    urls='example.com/1 example.com/2 example.com3'
-    ret=$(${WCURL_CMD} ${urls})
+    url_1='example.com/1'
+    url_2='example.com/2'
+    url_3='example.com3'
+    ret=$(${WCURL_CMD} ${url_1} ${url_2} ${url_3})
     next_count=$(printf '%s' "${ret}" | grep -c -- --next)
     assertEquals "Verify whether 'wcurl' includes '--next' for every url besides the first" "${next_count}" "2"
 }
@@ -152,7 +156,7 @@ testUrlDecodingDisabled()
 testUrlDecodingWhitespacesQueryString()
 {
     url='example.com/filename%20with%20spaces?query=string'
-    ret=$(${WCURL_CMD} ${url} 2>&1)
+    ret=$(${WCURL_CMD} "${url}" 2>&1)
     assertContains "Verify whether 'wcurl' successfully decodes percent-encoded whitespaces in URLs with query strings" "${ret}" 'filename with spaces'
 }
 
@@ -201,4 +205,5 @@ testUrlDecodingNonLatinLanguages()
 ## - Options are the same for all URLs (except --next)
 ## - URLs beginning with '-' (with and without using '--')
 
+# shellcheck disable=SC1091
 . shunit2
