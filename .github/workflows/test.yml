@@ -1,0 +1,108 @@
+# wcurl - a simple wrapper around curl to easily download files.
+#
+# This is wcurl's test pipeline.
+#
+# Copyright (C) Samuel Henrique <samueloph@debian.org>, Sergio Durigan
+# Junior <sergiodj@debian.org> and many contributors, see the AUTHORS
+# file.
+#
+# Permission to use, copy, modify, and distribute this software for any purpose
+# with or without fee is hereby granted, provided that the above copyright
+# notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD PARTY RIGHTS. IN
+# NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+# OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# Except as contained in this notice, the name of a copyright holder shall not be
+# used in advertising or otherwise to promote the sale, use or other dealings in
+# this Software without prior written authorization of the copyright holder.
+#
+# SPDX-License-Identifier: curl
+---
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck devscripts
+
+      - name: Run shellcheck
+        run: shellcheck wcurl tests/*
+
+      - name: Run checkbashisms
+        run: checkbashisms wcurl tests/*
+
+  debian:
+    name: debian
+    runs-on: ubuntu-latest
+    container:
+      image: debian:stable
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install curl and shunit2
+        run: |
+          apt-get update
+          apt-get install -y curl shunit2
+
+      - name: Run shunit2 tests
+        run: ./tests/tests.sh
+
+  fedora:
+    name: fedora
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install git and shunit2
+        run: |
+          dnf install -y git
+          git clone \
+            --depth 1 --branch v2.1.8 \
+            https://github.com/kward/shunit2.git
+          cd shunit2
+          cp shunit2 /usr/local/bin/shunit2
+
+      - name: Run shunit2 tests
+        run: ./tests/tests.sh
+
+  macos:
+    name: macos
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install shunit2
+        run: brew install shunit2
+
+      - name: Run shunit2 tests
+        run: ./tests/tests.sh
