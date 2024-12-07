@@ -105,6 +105,21 @@ script:
 ./tests/tests.sh
 ```
 
+# Lint
+
+To lint the shell scripts, you need to install `shellcheck` and `checkbashisms`. Those tools will check the scripts for issues and ensure they follow best practices.
+
+- On Debian-like systems: `apt-get install shellcheck devscripts`
+- On Fedora-like systems: `dnf install shellcheck devscripts`
+
+After installation, you can run `shellcheck` and `checkbashisms` by executing the following commands:
+
+```sh
+shellcheck wcurl ./tests/*
+
+checkbashisms wcurl ./tests/*
+```
+
 # Authors
 
 Samuel Henrique &lt;[samueloph@debian.org](mailto:samueloph@debian.org)&gt;  
