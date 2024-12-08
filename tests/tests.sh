@@ -120,6 +120,14 @@ testOutputFileName()
     assertContains "Verify whether 'wcurl' correctly sets a custom output filename" "${ret}" 'test filename'
 }
 
+testOutputFileNameRepeatedOption()
+{
+    url='example.com'
+    ret=$(${WCURL_CMD} -o "test filename" -o "test filename2" ${url} 2>&1)
+    assertContains "Verify whether 'wcurl' correctly sets a custom output filename" "${ret}" '--output'
+    assertContains "Verify whether 'wcurl' correctly sets a custom output filename" "${ret}" 'test filename2'
+}
+
 testUrlDefaultName()
 {
     url='example%20with%20spaces.com'
