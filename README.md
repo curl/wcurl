@@ -49,7 +49,6 @@ should be using curl directly if your use case is not covered.
 
 # Options
 
-
 * `--curl-options, curl-options=<CURL_OPTIONS>`...
 
   Specify extra options to be passed when invoking curl. May be specified more than once.
@@ -58,7 +57,8 @@ should be using curl directly if your use case is not covered.
 
   Use the provided output path instead of getting it from the URL. If multiple
   URLs are provided, all files will have the same name with a number appended to
-  the end (curl >= 7.83.0).
+  the end (curl >= 7.83.0). If this option is provided multiple times, only the
+  last value is considered.
 
 * `--no-decode-filename`
   Don't percent-decode the output filename, even if the percent-encoding in the

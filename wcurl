@@ -61,7 +61,8 @@ Options:
 
   -o, -O, --output <PATH>: Use the provided output path instead of getting it from the URL. If
                            multiple URLs are provided, all files will have the same name with a
-                           number appended to the end (curl >= 7.83.0).
+                           number appended to the end (curl >= 7.83.0). If this option is provided
+                           multiple times, only the last value is considered.
 
   --no-decode-filename: Don't percent-decode the output filename, even if the percent-encoding in
                         the URL was done by wcurl, e.g.: The URL contained whitespaces.

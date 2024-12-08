@@ -76,7 +76,8 @@ Specify extra options to be passed when invoking curl. May be specified more tha
 \fB\-o, \-O, \-\-output=\fI<PATH>\fR...\fR
 Use the provided output path instead of getting it from the URL. If multiple
 URLs are provided, all files will have the same name with a number appended to
-the end (curl >= 7.83.0).
+the end (curl >= 7.83.0). If this option is provided multiple times, only the
+last value is considered.
 .TP
 \fB\-\-dry\-run\fR
 Don't actually execute curl, just print what would be invoked.
