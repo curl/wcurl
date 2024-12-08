@@ -8,7 +8,7 @@ SPDX-License-Identifier: curl
 
 # Changelog
 
-## [UNRELEASED]
+## [v2024.12.08]
  * New parameter `-o|-O|--output|output=` which allows the user to choose the output filename.
  * Default to `index.html` as filename if none can be inferred from the URL.
  * Percent-decode output filenames by default.
