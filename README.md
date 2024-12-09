@@ -61,6 +61,7 @@ should be using curl directly if your use case is not covered.
   last value is considered.
 
 * `--no-decode-filename`
+
   Don't percent-decode the output filename, even if the percent-encoding in the
   URL was done by wcurl, e.g.: The URL contained whitespaces.
 
