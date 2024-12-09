@@ -53,7 +53,7 @@ should be using curl directly if your use case is not covered.
 
   Specify extra options to be passed when invoking curl. May be specified more than once.
 
-* `-o, -O, --output=<PATH>`
+* `-o, -O, --output, --output=<PATH>`
 
   Use the provided output path instead of getting it from the URL. If multiple
   URLs are provided, all files will have the same name with a number appended to
