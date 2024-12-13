@@ -8,6 +8,25 @@ SPDX-License-Identifier: curl
 
 # [![wcurl logo](https://curl.se/logo/wcurl-logo.svg)](https://curl.se/wcurl)
 
+# Install wcurl
+
+First check if your distro/OS vendor ships `wcurl` as part of their official
+repositories, `wcurl` might be shipped as part of the `curl` package.
+
+If they don't ship it, consider making a request for it.
+
+You can always install wcurl by simply downloading the script:
+
+```console
+curl -fLO https://github.com/curl/wcurl/releases/latest/download/wcurl
+chmod +x wcurl
+```
+
+# Install wcurl's manpage
+```console
+curl -fLO https://github.com/curl/wcurl/releases/latest/download/wcurl.1
+sudo mv wcurl.1 /usr/share/man/man1/wcurl.1
+```
 
 # wcurl(1)
 
