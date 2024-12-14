@@ -62,8 +62,8 @@ should be using curl directly if your use case is not covered.
   * Avoid overwriting files if the installed curl's version is >= 7.83.0 (`--no-clobber`);
   * Perform retries;
   * Set the downloaded file timestamp to the value provided by the server, if available;
-  * Disable **curl**'s URL globbing parser so `{}` and `[]` characters in URLs are not treated specially.
-  * Percent-decode the resulting filename.
+  * Disable **curl**'s URL globbing parser so `{}` and `[]` characters in URLs are not treated specially;
+  * Percent-decode the resulting filename;
   * Use "index.html" as default filename if there's none in the URL.
 
 # Options
