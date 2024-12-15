@@ -32,6 +32,18 @@ export PATH="${ROOTDIR}:${PATH}"
 
 readonly WCURL_CMD="wcurl --dry-run "
 
+check_shunit2_compatibility() {
+    output=$(sh ./tests/compatibility.sh 2>/dev/null)
+
+    if ! echo "${output}" | grep -q "OK"; then
+        echo "Error: shunit2 version 2.1.8 or higher is required."
+        echo "Please install a compatible version of shunit2."
+        exit 1
+    fi
+}
+
+check_shunit2_compatibility
+
 debug()
 {
     if [ -n "${DEBUG}" ]; then
