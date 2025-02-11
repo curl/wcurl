@@ -275,6 +275,12 @@ while [ -n "${1-}" ]; do
             OUTPUT_PATH="${1}"
             ;;
 
+        -o*|-O*)
+            opt=$(printf "%s\n" "${1}" | sed 's/^-[oO]//')
+            HAS_USER_SET_OUTPUT="true"
+            OUTPUT_PATH="${opt}"
+            ;;
+
         --no-decode-filename)
             DECODE_FILENAME="false"
             ;;

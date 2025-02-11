@@ -132,6 +132,14 @@ testOutputFileName()
     assertContains "Verify whether 'wcurl' correctly sets a custom output filename" "${ret}" 'test filename'
 }
 
+testOutputFileNameWithoutSpaces()
+{
+    url='example.com'
+    ret=$(${WCURL_CMD} -o"test filename" ${url} 2>&1)
+    assertContains "Verify whether 'wcurl' correctly sets --output" "${ret}" '--output'
+    assertContains "Verify whether 'wcurl' correctly sets --output with the correct filename" "${ret}" 'test filename'
+}
+
 testOutputFileNameRepeatedOption()
 {
     url='example.com'
