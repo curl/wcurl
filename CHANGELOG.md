@@ -8,6 +8,8 @@ SPDX-License-Identifier: curl
 
 # Changelog
 
+## [UNRELEASED]
+
 ## [v2025.02.24]
  * Allow `-o` and `-O` to be used without whitespaces (e.g.: `-oNAME`).
  * Fix capitalization of the name of copyright owner sergiodj.
