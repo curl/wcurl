@@ -8,7 +8,17 @@ SPDX-License-Identifier: curl
 
 # Changelog
 
-## [UNRELEASED]
+## [v2025.02.24]
+ * Allow `-o` and `-O` to be used without whitespaces (e.g.: `-oNAME`).
+ * Fix capitalization of the name of copyright owner sergiodj.
+ * Use the standard copyright header in manpage.
+ * Create a github workflow for tests and linting.
+ * Add missing breakline to README to fix formatting.
+ * Update manpage to describe that `--output` can be used without the equal sign.
+ * Add installation instructions to README.
+ * Fix punctuation in the list of features.
+ * Throw an error message on tests if shunit's version is lower than 2.1.8.
+ * Update AUTHORS.
 
 ## [v2024.12.08]
  * New parameter `-o|-O|--output|output=` which allows the user to choose the output filename.
