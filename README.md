@@ -24,7 +24,7 @@ chmod +x wcurl
 
 # Install wcurl's manpage
 ```console
-curl -fLO https://github.com/curl/wcurl/releases/latest/download/wcurl.1
+$CURLSRC/scripts/cd2nroff wcurl.md  > wcurl.1 
 sudo mv wcurl.1 /usr/share/man/man1/wcurl.1
 ```
 
