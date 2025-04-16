@@ -24,7 +24,7 @@ wcurl - download URLs
 without having to remember any parameters.
 
 Simply call **wcurl** with a list of URLs you want to download and **wcurl**
-picks sane defaults.
+will pick sane defaults.
 
 If you need anything more complex, you can provide any of curl's supported
 parameters via the **--curl-options** option. Just beware that you likely
@@ -32,7 +32,7 @@ should be using curl directly if your use case is not covered.
 
 By default, **wcurl** does:
 
-## Encode whitespaces in URLs
+## Percent-encode whitespaces in URLs
 
 ## Download multiple URLs in parallel
 if the installed curl's version is \>= 7.66.0
@@ -55,12 +55,28 @@ if the URL does not contain any scheme
 ## Disable curl's URL globbing parser
 so **{}** and **\[\]** characters in URLs are not treated specially.
 
+## Percent-decode the resulting filename
+
+## Use \'index.html\' as the default filename
+if there's none in the URL
+
 # OPTIONS
 
 ## --curl-options=\<CURL_OPTIONS\>
 
 Specify extra options to be passed when invoking curl. May be specified more
 than once.
+
+## -o, -O, --output, --output=\<PATH\>
+
+Use the provided output path instead of getting it from the URL. If multiple
+URLs are provided, all files will have the same name with a number appended to
+the end (curl \>= 7.83.0). If this option is provided multiple times, only the
+last value is considered.
+
+## --no-decode-filename
+
+Do not perform any percent-decoding of the resulting filename.
 
 ## --dry-run
 
@@ -81,7 +97,7 @@ is instead forwarded to the curl invocation.
 
 # URL
 
-Anything which is not a parameter is considered an URL. **wcurl** encodes
+Anything which is not a parameter is considered an URL. **wcurl** percent-encodes
 whitespaces and pass that to curl, which performs the parsing of the URL.
 
 # EXAMPLES
@@ -106,9 +122,10 @@ be the last one in the list):
 # AUTHORS
 
 - Samuel Henrique \<samueloph@debian.org\>
-- Sergio durigan junior \<sergiodj@debian.org\>
-- Ryan Carsten Schmidt \<git@ryandesign.com\>
-- Ben Zanin
+
+- Sergio Durigan Junior \<sergiodj@debian.org\>
+
+- and many contributors, see the AUTHORS file.
 
 # REPORTING BUGS
 
@@ -118,7 +135,3 @@ curl, submit an issue on Github: https://github.com/curl/wcurl
 # COPYRIGHT
 
 **wcurl** is licensed under the curl license
-
-# SEE ALSO
-
-**curl**(1)
