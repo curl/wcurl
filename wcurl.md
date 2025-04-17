@@ -12,11 +12,19 @@ Added-in: n/a
 
 # NAME
 
-wcurl - download URLs
+**wcurl** - a simple wrapper around curl to easily download files.
 
 # SYNOPSIS
 
-**wcurl [options / URLs]**
+**wcurl** \<URL\>**...**
+
+**wcurl [--curl-options **\<CURL_OPTIONS\>**]... [--dry-run] [--no-decode-filename] [-o|-O|--output **\<PATH\>**] [--] \<URL\>...**
+
+**wcurl [--curl-options=**\<CURL_OPTIONS\>**]... [--dry-run] [--no-decode-filename] [--output=**\<PATH\>**] [--] \<URL\>...**
+
+**wcurl -V|--version**
+
+**wcurl -h|--help**
 
 # DESCRIPTION
 
@@ -30,39 +38,39 @@ If you need anything more complex, you can provide any of curl's supported
 parameters via the **--curl-options** option. Just beware that you likely
 should be using curl directly if your use case is not covered.
 
-By default, **wcurl** does:
+By default, **wcurl** will:
 
-## Percent-encode whitespaces in URLs
+## * Percent-encode whitespaces in URLs
 
-## Download multiple URLs in parallel
+## * Download multiple URLs in parallel
 if the installed curl's version is \>= 7.66.0
 
-## Follow redirects
+## * Follow redirects
 
-## Automatically choose a filename as output
+## * Automatically choose a filename as output
 
-## Avoid overwriting files
+## * Avoid overwriting files
 if the installed curl's version is \>= 7.83.0 (**--no-clobber**)
 
-## Perform retries
+## * Perform retries
 
-## Set the downloaded file timestamp
+## * Set the downloaded file timestamp
 to the value provided by the server, if available
 
-## Default to https
+## * Default to https
 if the URL does not contain any scheme
 
-## Disable curl's URL globbing parser
+## * Disable curl's URL globbing parser
 so **{}** and **\[\]** characters in URLs are not treated specially.
 
-## Percent-decode the resulting filename
+## * Percent-decode the resulting filename
 
-## Use \'index.html\' as the default filename
+## * Use 'index.html' as the default filename
 if there's none in the URL
 
 # OPTIONS
 
-## --curl-options=\<CURL_OPTIONS\>
+## --curl-options, --curl-options=\<CURL_OPTIONS\>...
 
 Specify extra options to be passed when invoking curl. May be specified more
 than once.
@@ -76,7 +84,8 @@ last value is considered.
 
 ## --no-decode-filename
 
-Do not perform any percent-decoding of the resulting filename.
+Don't percent-decode the output filename, even if the percent-encoding in the
+URL was done by **wcurl**, e.g.: The URL contained whitespaces.
 
 ## --dry-run
 
@@ -92,40 +101,38 @@ Print help message.
 
 # CURL_OPTIONS
 
-Any option supported by curl can be set here. This is not used by **wcurl** it
+Any option supported by curl can be set here. This is not used by **wcurl**; it
 is instead forwarded to the curl invocation.
 
 # URL
 
-Anything which is not a parameter is considered an URL. **wcurl** percent-encodes
+Anything which is not a parameter is considered an URL. **wcurl** will percent-encode
 whitespaces and pass that to curl, which performs the parsing of the URL.
 
 # EXAMPLES
 
-Download a single file:\
+Download a single file:
 
-    wcurl example.com/filename.txt
+**wcurl example.com/filename.txt**
 
 Download two files in parallel:
 
-    wcurl example.com/filename1.txt example.com/filename2.txt
+**wcurl example.com/filename1.txt example.com/filename2.txt**
 
 Download a file passing the **--progress-bar** and **--http2** flags to curl:
 
-    wcurl --curl-options="--progress-bar --http2" example.com/filename.txt
+**wcurl --curl-options="--progress-bar --http2" example.com/filename.txt**
 
 Resume from an interrupted download (if more options are used, this needs to
 be the last one in the list):
 
-    wcurl --curl-options="--continue-at -" example.com/filename.txt
+**wcurl --curl-options="--continue-at -" example.com/filename.txt**
 
 # AUTHORS
 
-- Samuel Henrique \<samueloph@debian.org\>
-
-- Sergio Durigan Junior \<sergiodj@debian.org\>
-
-- and many contributors, see the AUTHORS file.
+    Samuel Henrique \<samueloph@debian.org\>
+    Sergio Durigan Junior \<sergiodj@debian.org\>
+    and many contributors, see the AUTHORS file.
 
 # REPORTING BUGS
 
