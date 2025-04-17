@@ -73,8 +73,6 @@ Options:
 
   -h, --help: Print this usage message.
 
-  <URL>: The URL to be downloaded. May be specified more than once.
-
   <CURL_OPTIONS>: Any option supported by curl can be set here. This is not used by wcurl; it's
                  instead forwarded to the curl invocation.
 
