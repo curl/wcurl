@@ -32,41 +32,41 @@ Added-in: n/a
 without having to remember any parameters.
 
 Simply call **wcurl** with a list of URLs you want to download and **wcurl**
-will pick sane defaults.
+picks sane defaults.
 
 If you need anything more complex, you can provide any of curl's supported
 parameters via the **--curl-options** option. Just beware that you likely
 should be using curl directly if your use case is not covered.
 
-By default, **wcurl** will:
+By default, **wcurl** does:
 
-## * Percent-encode whitespaces in URLs
+## * Percent-encode whitespaces in URLs;
 
 ## * Download multiple URLs in parallel
-if the installed curl's version is \>= 7.66.0
+    if the installed curl's version is \>= 7.66.0 (--parallel);
 
-## * Follow redirects
+## * Follow redirects;
 
-## * Automatically choose a filename as output
+## * Automatically choose a filename as output;
 
 ## * Avoid overwriting files
-if the installed curl's version is \>= 7.83.0 (**--no-clobber**)
+     if the installed curl's version is \>= 7.83.0 (--no-clobber);
 
-## * Perform retries
+## * Perform retries;
 
 ## * Set the downloaded file timestamp
-to the value provided by the server, if available
+    to the value provided by the server, if available;
 
 ## * Default to https
-if the URL does not contain any scheme
+    if the URL does not contain any scheme;
 
 ## * Disable curl's URL globbing parser
-so **{}** and **\[\]** characters in URLs are not treated specially.
+    so {} and [] characters in URLs are not treated specially;
 
-## * Percent-decode the resulting filename
+## * Percent-decode the resulting filename;
 
 ## * Use 'index.html' as the default filename
-if there's none in the URL
+    if there is none in the URL.
 
 # OPTIONS
 
@@ -78,7 +78,7 @@ than once.
 ## -o, -O, --output, --output=\<PATH\>
 
 Use the provided output path instead of getting it from the URL. If multiple
-URLs are provided, all files will have the same name with a number appended to
+URLs are provided, resulting files share the same name with a number appended to
 the end (curl \>= 7.83.0). If this option is provided multiple times, only the
 last value is considered.
 
@@ -106,8 +106,9 @@ is instead forwarded to the curl invocation.
 
 # URL
 
-Anything which is not a parameter is considered an URL. **wcurl** will percent-encode
-whitespaces and pass that to curl, which performs the parsing of the URL.
+URL to be downloaded. Anything that is not a parameter is considered
+an URL. Whitespaces are percent-encoded and the URL is passed to curl, which
+then performs the parsing. May be specified more than once.
 
 # EXAMPLES
 
