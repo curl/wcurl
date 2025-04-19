@@ -60,7 +60,7 @@ Options:
                                  specified more than once.
 
   -o, -O, --output <PATH>: Use the provided output path instead of getting it from the URL. If
-                           multiple URLs are provided, all files will have the same name with a
+                           multiple URLs are provided, resulting files share the same name with a
                            number appended to the end (curl >= 7.83.0). If this option is provided
                            multiple times, only the last value is considered.
 
@@ -73,10 +73,12 @@ Options:
 
   -h, --help: Print this usage message.
 
-  <CURL_OPTIONS>: Any option supported by curl can be set here. This is not used by wcurl; it's
+  <CURL_OPTIONS>: Any option supported by curl can be set here. This is not used by wcurl; it is
                  instead forwarded to the curl invocation.
 
-  <URL>: The URL to be downloaded. May be specified more than once.
+  <URL>: URL to be downloaded. Anything that is not a parameter is considered
+         an URL. Whitespaces are percent-encoded and the URL is passed to curl, which
+         then performs the parsing. May be specified more than once.
 _EOF_
 }
 
@@ -88,7 +90,7 @@ error()
 }
 
 # Extra curl options provided by the user.
-# This will be set per-URL for every URL provided.
+# This is set per-URL for every URL provided.
 # Some options are global, but we are erroring on the side of needlesly setting
 # them multiple times instead of causing issues with parameters that needs to
 # be set per-URL.
@@ -97,12 +99,12 @@ CURL_OPTIONS=""
 # The URLs to be downloaded.
 URLS=""
 
-# Will be set to the percent-decoded filename parsed from the URL, unless
+# Variable used to be set to the percent-decoded filename parsed from the URL, unless
 # --output or --no-decode-filename are used.
 OUTPUT_PATH=""
 HAS_USER_SET_OUTPUT="false"
 
-# The parameters that will be passed per-URL to curl.
+# The parameters that are passed per-URL to curl.
 readonly PER_URL_PARAMETERS="\
     --fail \
     --globoff \

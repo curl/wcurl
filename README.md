@@ -13,7 +13,7 @@ SPDX-License-Identifier: curl
 First check if your distro/OS vendor ships `wcurl` as part of their official
 repositories, `wcurl` might be shipped as part of the `curl` package.
 
-If they don't ship it, consider making a request for it.
+If they do not ship it, consider making a request for it.
 
 You can always install wcurl by simply downloading the script:
 
@@ -46,7 +46,7 @@ sudo mv wcurl.1 /usr/share/man/man1/wcurl.1
 **wcurl** is a simple curl wrapper which lets you use curl to download files
 without having to remember any parameters.
 
-Simply call **wcurl** with a list of URLs you want to download and **wcurl** will pick
+Simply call **wcurl** with a list of URLs you want to download and **wcurl** picks
 sane defaults.
 
 If you need anything more complex, you can provide any of curl's supported
@@ -54,9 +54,9 @@ parameters via the `--curl-options` option. Just beware that you likely
 should be using curl directly if your use case is not covered.
 
 
-* By default, **wcurl** will:
+* By default, **wcurl** does:
   * Percent-encode whitespaces in URLs;
-  * Download multiple URLs in parallel if the installed curl's version is >= 7.66.0;
+  * Download multiple URLs in parallel if the installed curl's version is >= 7.66.0 (`--parallel`);
   * Follow redirects;
   * Automatically choose a filename as output;
   * Avoid overwriting files if the installed curl's version is >= 7.83.0 (`--no-clobber`);
@@ -64,7 +64,7 @@ should be using curl directly if your use case is not covered.
   * Set the downloaded file timestamp to the value provided by the server, if available;
   * Disable **curl**'s URL globbing parser so `{}` and `[]` characters in URLs are not treated specially;
   * Percent-decode the resulting filename;
-  * Use "index.html" as default filename if there's none in the URL.
+  * Use "index.html" as default filename if there is none in the URL.
 
 # Options
 
@@ -75,7 +75,7 @@ should be using curl directly if your use case is not covered.
 * `-o, -O, --output, --output=<PATH>`
 
   Use the provided output path instead of getting it from the URL. If multiple
-  URLs are provided, all files will have the same name with a number appended to
+  URLs are provided, resulting files share the same name with a number appended to
   the end (curl >= 7.83.0). If this option is provided multiple times, only the
   last value is considered.
 
@@ -96,11 +96,16 @@ should be using curl directly if your use case is not covered.
 
   Print help message.
 
-# Url
+# CURL_OPTIONS
 
-Anything which is not a parameter will be considered an URL.
-**wcurl** will percent-encode whitespaces and pass that to curl, which will perform the
-parsing of the URL.
+Any option supported by curl can be set here. This is not used by wcurl; it is
+instead forwarded to the curl invocation.
+
+# URL
+
+URL to be downloaded. Anything that is not a parameter is considered
+an URL. Whitespaces are percent-encoded and the URL is passed to curl, which
+then performs the parsing. May be specified more than once.
 
 # Examples
 
@@ -122,7 +127,7 @@ parsing of the URL.
 
 # Running the testsuite
 
-If you would like to run the tests, you will first need to install the
+If you would like to run the tests, you first need to install the
 `shunit2` package.  On Debian-like and Fedora-like systems, the
 package is called `shunit2`.
 
@@ -135,7 +140,7 @@ script:
 
 # Lint
 
-To lint the shell scripts, you need to install `shellcheck` and `checkbashisms`. Those tools will check the scripts for issues and ensure they follow best practices.
+To lint the shell scripts, you need to install `shellcheck` and `checkbashisms`. These tools check the scripts for issues and ensure they follow best practices.
 
 - On Debian-like systems: `apt install shellcheck devscripts`
 - On Fedora-like systems: `dnf install shellcheck devscripts`
@@ -162,7 +167,3 @@ submit an issue [here](https://github.com/curl/wcurl/issues).
 # Copyright
 
 **wcurl** is licensed under the curl license
-
-# See Also
-
-**curl**(1)
