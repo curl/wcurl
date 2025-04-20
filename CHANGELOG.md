@@ -8,6 +8,8 @@ SPDX-License-Identifier: curl
 
 # Changelog
 
+## [UNRELEASED]
+
 ## [v2025.04.20]
  * Update manpage, help output, README and comments, fixing typos and
    standardizing to curl's documentation format.
