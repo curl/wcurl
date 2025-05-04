@@ -1,0 +1,7 @@
+# Copyright (C) Samuel Henrique <samueloph@debian.org>, Sergio Durigan
+# Junior <sergiodj@debian.org> and many contributors, see the AUTHORS
+# file.
+
+# SPDX-License-Identifier: curl
+
+wcurl.1
