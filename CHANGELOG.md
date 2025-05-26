@@ -8,6 +8,8 @@ SPDX-License-Identifier: curl
 
 # Changelog
 
+## [UNRELEASED]
+
 ## [v2025.05.26]
  * Increase number of retries to 5 (32 sec total time), fixing the problem with
    misleanding output. Previously, it was showing a higher number of retries
