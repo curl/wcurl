@@ -12,7 +12,7 @@ SPDX-License-Identifier: curl
 
 ## [v2025.05.26]
  * Increase number of retries to 5 (32 sec total time), fixing the problem with
-   misleanding output. Previously, it was showing a higher number of retries
+   misleading output. Previously, it was showing a higher number of retries
    than what would be done and it always did only 3.
 
 ## [v2025.04.20]
