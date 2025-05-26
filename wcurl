@@ -111,8 +111,7 @@ readonly PER_URL_PARAMETERS="\
     --location \
     --proto-default https \
     --remote-time \
-    --retry 10 \
-    --retry-max-time 10 "
+    --retry 5 "
 
 # Whether to invoke curl or not.
 DRY_RUN="false"
