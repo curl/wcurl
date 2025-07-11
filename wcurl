@@ -91,7 +91,7 @@ error()
 
 # Extra curl options provided by the user.
 # This is set per-URL for every URL provided.
-# Some options are global, but we are erroring on the side of needlesly setting
+# Some options are global, but we are erroring on the side of needlessly setting
 # them multiple times instead of causing issues with parameters that needs to
 # be set per-URL.
 CURL_OPTIONS=""

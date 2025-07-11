@@ -120,7 +120,7 @@ testUrlStartingWithDash()
 {
     url='-example.com'
     ret=$(${WCURL_CMD} ${url} 2>&1)
-    assertFalse "Verify wether 'wcurl' considers an URL starting with '-' as an option" "$?"
+    assertFalse "Verify whether 'wcurl' considers an URL starting with '-' as an option" "$?"
     assertEquals "${ret}" "Unknown option: '-example.com'."
 }
 
