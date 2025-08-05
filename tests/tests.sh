@@ -32,7 +32,8 @@ export PATH="${ROOTDIR}:${PATH}"
 
 readonly WCURL_CMD="wcurl --dry-run "
 
-oneTimeSetUp() {
+oneTimeSetUp()
+{
     if ! assertContains "Check compatibility" "test" "test"; then
         echo "Error: shunit2 version 2.1.8 or higher is required."
         echo "Please install a compatible version of shunit2."
