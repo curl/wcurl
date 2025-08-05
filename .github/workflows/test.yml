@@ -48,13 +48,16 @@ jobs:
       - name: Install tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y shellcheck devscripts
+          sudo apt-get install -y shellcheck devscripts shfmt
 
       - name: Run shellcheck
         run: shellcheck wcurl tests/*
 
       - name: Run checkbashisms
         run: checkbashisms wcurl tests/*
+
+      - name: Run shfmt
+        run: shfmt --func-next-line --space-redirects --case-indent --binary-next-line --indent 4 --posix --diff .
 
   debian:
     name: debian
