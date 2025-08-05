@@ -20,12 +20,15 @@ You can always install wcurl by simply downloading the script:
 ```console
 curl -fLO https://github.com/curl/wcurl/releases/latest/download/wcurl
 chmod +x wcurl
+sudo mv wcurl /usr/local/bin/wcurl
 ```
 
 # Install wcurl's manpage
 ```console
-$CURLSRC/scripts/cd2nroff wcurl.md  > wcurl.1 
-sudo mv wcurl.1 /usr/share/man/man1/wcurl.1
+curl -fLO https://github.com/curl/wcurl/releases/latest/download/wcurl.1
+sudo mkdir -p /usr/local/share/man/man1/
+sudo mv wcurl.1 /usr/local/share/man/man1/wcurl.1
+sudo mandb
 ```
 
 # wcurl(1)
