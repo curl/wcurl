@@ -193,7 +193,7 @@ exec_curl()
     if [ "${curl_version_major}" -ge 8 ]; then
         CURL_HAS_NO_CLOBBER="--no-clobber"
         CURL_HAS_PARALLEL="--parallel"
-    elif [ "${curl_version_major}" -eq 7 ];then
+    elif [ "${curl_version_major}" -eq 7 ]; then
         if [ "${curl_version_minor}" -ge 83 ]; then
             CURL_HAS_NO_CLOBBER="--no-clobber"
         fi
