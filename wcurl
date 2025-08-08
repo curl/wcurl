@@ -35,17 +35,15 @@ PROGRAM_NAME="$(basename "$0")"
 readonly PROGRAM_NAME
 
 # Display the version.
-print_version()
-{
-    cat << _EOF_
+print_version() {
+    cat <<_EOF_
 ${VERSION}
 _EOF_
 }
 
 # Display the program usage.
-usage()
-{
-    cat << _EOF_
+usage() {
+    cat <<_EOF_
 ${PROGRAM_NAME} -- a simple wrapper around curl to easily download files.
 
 Usage: ${PROGRAM_NAME} <URL>...
@@ -83,9 +81,8 @@ _EOF_
 }
 
 # Display an error message and bail out.
-error()
-{
-    printf "%s\n" "$*" > /dev/stderr
+error() {
+    printf "%s\n" "$*" >/dev/stderr
     exit 1
 }
 
@@ -117,8 +114,7 @@ readonly PER_URL_PARAMETERS="\
 DRY_RUN="false"
 
 # Sanitize parameters.
-sanitize()
-{
+sanitize() {
     if [ -z "${URLS}" ]; then
         error "You must provide at least one URL to download."
     fi
@@ -130,16 +126,14 @@ sanitize()
 # consists solely of characters from the string given in the second parameter.
 # In other words, it returns 0 if the first parameter only contains characters
 # from the second parameter, e.g.: Are $1 characters a subset of $2 characters?
-is_subset_of()
-{
+is_subset_of() {
     case "${1}" in
-        *[!${2}]*|'') return 1;;
+    *[!${2}]* | '') return 1 ;;
     esac
 }
 
 # Print the given string percent-decoded.
-percent_decode()
-{
+percent_decode() {
     # Encodings of control characters (00-1F) are passed through without decoding.
     # Iterate on the input character-by-character, decoding it.
     printf "%s\n" "${1}" | fold -w1 | while IFS= read -r decode_out; do
@@ -151,8 +145,8 @@ percent_decode()
                 decode_out="${decode_out}${decode_hex2}"
                 # Skip decoding if this is a control character (00-1F).
                 # Skip decoding if DECODE_FILENAME is not "true".
-                if is_subset_of "${decode_hex1}" "23456789abcdefABCDEF" && \
-                    is_subset_of "${decode_hex2}" "0123456789abcdefABCDEF" && \
+                if is_subset_of "${decode_hex1}" "23456789abcdefABCDEF" &&
+                    is_subset_of "${decode_hex2}" "0123456789abcdefABCDEF" &&
                     [ "${DECODE_FILENAME}" = "true" ]; then
                     # Use printf to decode it into octal and then decode it to the final format.
                     decode_out="$(printf "%b" "\\$(printf %o "0x${decode_hex1}${decode_hex2}")")"
@@ -164,21 +158,19 @@ percent_decode()
 }
 
 # Print the percent-decoded filename portion of the given URL.
-get_url_filename()
-{
+get_url_filename() {
     # Remove protocol and query string if present.
     hostname_and_path="$(printf %s "${1}" | sed -e 's,^[^/]*//,,' -e 's,?.*$,,')"
     # If what remains contains a slash, there's a path; return it percent-decoded.
     case "${hostname_and_path}" in
-        # sed to remove everything preceding the last '/', e.g.: "example/something" becomes "something"
-        */*) percent_decode "$(printf %s "${hostname_and_path}" | sed -e 's,^.*/,,')";;
+    # sed to remove everything preceding the last '/', e.g.: "example/something" becomes "something"
+    */*) percent_decode "$(printf %s "${hostname_and_path}" | sed -e 's,^.*/,,')" ;;
     esac
     # No slash means there was just a hostname and no path; return empty string.
 }
 
 # Execute curl with the list of URLs provided by the user.
-exec_curl()
-{
+exec_curl() {
     CMD="curl "
 
     # Store version to check if it supports --no-clobber and --parallel.
@@ -248,73 +240,73 @@ DECODE_FILENAME="true"
 # Use "${1-}" in order to avoid errors because of 'set -u'.
 while [ -n "${1-}" ]; do
     case "${1}" in
-        --curl-options=*)
-            opt=$(printf "%s\n" "${1}" | sed 's/^--curl-options=//')
-            CURL_OPTIONS="${CURL_OPTIONS} ${opt}"
-            ;;
+    --curl-options=*)
+        opt=$(printf "%s\n" "${1}" | sed 's/^--curl-options=//')
+        CURL_OPTIONS="${CURL_OPTIONS} ${opt}"
+        ;;
 
-        --curl-options)
-            shift
-            CURL_OPTIONS="${CURL_OPTIONS} ${1}"
-            ;;
+    --curl-options)
+        shift
+        CURL_OPTIONS="${CURL_OPTIONS} ${1}"
+        ;;
 
-        --dry-run)
-            DRY_RUN="true"
-            ;;
+    --dry-run)
+        DRY_RUN="true"
+        ;;
 
-        --output=*)
-            opt=$(printf "%s\n" "${1}" | sed 's/^--output=//')
-            HAS_USER_SET_OUTPUT="true"
-            OUTPUT_PATH="${opt}"
-            ;;
+    --output=*)
+        opt=$(printf "%s\n" "${1}" | sed 's/^--output=//')
+        HAS_USER_SET_OUTPUT="true"
+        OUTPUT_PATH="${opt}"
+        ;;
 
-        -o|-O|--output)
-            shift
-            HAS_USER_SET_OUTPUT="true"
-            OUTPUT_PATH="${1}"
-            ;;
+    -o | -O | --output)
+        shift
+        HAS_USER_SET_OUTPUT="true"
+        OUTPUT_PATH="${1}"
+        ;;
 
-        -o*|-O*)
-            opt=$(printf "%s\n" "${1}" | sed 's/^-[oO]//')
-            HAS_USER_SET_OUTPUT="true"
-            OUTPUT_PATH="${opt}"
-            ;;
+    -o* | -O*)
+        opt=$(printf "%s\n" "${1}" | sed 's/^-[oO]//')
+        HAS_USER_SET_OUTPUT="true"
+        OUTPUT_PATH="${opt}"
+        ;;
 
-        --no-decode-filename)
-            DECODE_FILENAME="false"
-            ;;
+    --no-decode-filename)
+        DECODE_FILENAME="false"
+        ;;
 
-        -h|--help)
-            usage
-            exit 0
-            ;;
+    -h | --help)
+        usage
+        exit 0
+        ;;
 
-        -V|--version)
-            print_version
-            exit 0
-            ;;
+    -V | --version)
+        print_version
+        exit 0
+        ;;
 
-        --)
-            # This is the start of the list of URLs.
-            shift
-            for url in "$@"; do
-                # Encode whitespaces into %20, since wget supports those URLs.
-                newurl=$(printf "%s\n" "${url}" | sed 's/ /%20/g')
-                URLS="${URLS} ${newurl}"
-            done
-            break
-            ;;
-
-        -*)
-            error "Unknown option: '$1'."
-            ;;
-
-        *)
-            # This must be a URL.
+    --)
+        # This is the start of the list of URLs.
+        shift
+        for url in "$@"; do
             # Encode whitespaces into %20, since wget supports those URLs.
-            newurl=$(printf "%s\n" "${1}" | sed 's/ /%20/g')
+            newurl=$(printf "%s\n" "${url}" | sed 's/ /%20/g')
             URLS="${URLS} ${newurl}"
-            ;;
+        done
+        break
+        ;;
+
+    -*)
+        error "Unknown option: '$1'."
+        ;;
+
+    *)
+        # This must be a URL.
+        # Encode whitespaces into %20, since wget supports those URLs.
+        newurl=$(printf "%s\n" "${1}" | sed 's/ /%20/g')
+        URLS="${URLS} ${newurl}"
+        ;;
     esac
     shift
 done

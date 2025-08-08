@@ -40,15 +40,13 @@ oneTimeSetUp() {
     fi
 }
 
-debug()
-{
+debug() {
     if [ -n "${DEBUG}" ]; then
         printf "D: %s\n" "$*"
     fi
 }
 
-testUsage()
-{
+testUsage() {
     ret=$(${WCURL_CMD} --help)
     assertTrue "Verify whether '--help' option exits successfully" "$?"
 
@@ -57,23 +55,20 @@ testUsage()
     assertTrue "Verify whether the usage command works" "$?"
 }
 
-testNoOptionError()
-{
+testNoOptionError() {
     ret=$(${WCURL_CMD} 2>&1)
     assertFalse "Verify whether 'wcurl' without options exits with an error" "$?"
     assertEquals "Verify whether 'wcurl' without options displays an error message" "${ret}" "You must provide at least one URL to download."
 }
 
-testInvalidOptionError()
-{
+testInvalidOptionError() {
     invalidoption="--frobnicator"
     ret=$(${WCURL_CMD} ${invalidoption} 2>&1)
     assertFalse "Verify whether 'wcurl' with an invalid option exits with an error" "$?"
     assertEquals "Verify whether 'wcurl' with an invalid option displays an error message" "${ret}" "Unknown option: '${invalidoption}'."
 }
 
-testParallelIfMoreThanOneUrl()
-{
+testParallelIfMoreThanOneUrl() {
     # TODO: This test is wrong for curl 7.65 or older, since --parallel was only introduced in 7.66.
     #       We should check curl's version and skip this test instead.
     url_1='example.com/1'
@@ -82,23 +77,20 @@ testParallelIfMoreThanOneUrl()
     assertContains "Verify whether 'wcurl' uses '--parallel' if more than one url is provided" "${ret}" '--parallel'
 }
 
-testEncodingWhitespace()
-{
+testEncodingWhitespace() {
     url='example.com/white space'
     ret=$(${WCURL_CMD} "${url}")
     assertContains "Verify 'wcurl' encodes spaces in URLs as '%20'" "${ret}" 'example.com/white%20space'
 }
 
-testDoubleDash()
-{
+testDoubleDash() {
     params='example.com --curl-options=abc'
     ret=$(${WCURL_CMD} -- "${params}")
     assertTrue "Verify whether 'wcurl' accepts '--' without erroring" "$?"
     assertContains "Verify whether 'wcurl' considers everywhing after '--' a url" "${ret}" '--curl-options=abc'
 }
 
-testCurlOptions()
-{
+testCurlOptions() {
     params='example.com --curl-options=--foo --curl-options --bar'
     ret=$(${WCURL_CMD} "${params}")
     assertTrue "Verify 'wcurl' accepts '--curl-options' with and without trailing '='" "$?"
@@ -106,8 +98,7 @@ testCurlOptions()
     assertContains "Verify 'wcurl' correctly passes through --curl-options <option>" "${ret}" '--bar'
 }
 
-testNextAmount()
-{
+testNextAmount() {
     url_1='example.com/1'
     url_2='example.com/2'
     url_3='example.com3'
@@ -116,61 +107,53 @@ testNextAmount()
     assertEquals "Verify whether 'wcurl' includes '--next' for every url besides the first" "${next_count}" "2"
 }
 
-testUrlStartingWithDash()
-{
+testUrlStartingWithDash() {
     url='-example.com'
     ret=$(${WCURL_CMD} ${url} 2>&1)
     assertFalse "Verify whether 'wcurl' considers an URL starting with '-' as an option" "$?"
     assertEquals "${ret}" "Unknown option: '-example.com'."
 }
 
-testOutputFileName()
-{
+testOutputFileName() {
     url='example.com'
     ret=$(${WCURL_CMD} -o "test filename" ${url} 2>&1)
     assertContains "Verify whether 'wcurl' correctly sets a custom output filename" "${ret}" '--output'
     assertContains "Verify whether 'wcurl' correctly sets a custom output filename" "${ret}" 'test filename'
 }
 
-testOutputFileNameWithoutSpaces()
-{
+testOutputFileNameWithoutSpaces() {
     url='example.com'
     ret=$(${WCURL_CMD} -o"test filename" ${url} 2>&1)
     assertContains "Verify whether 'wcurl' correctly sets --output" "${ret}" '--output'
     assertContains "Verify whether 'wcurl' correctly sets --output with the correct filename" "${ret}" 'test filename'
 }
 
-testOutputFileNameRepeatedOption()
-{
+testOutputFileNameRepeatedOption() {
     url='example.com'
     ret=$(${WCURL_CMD} -o "test filename" -o "test filename2" ${url} 2>&1)
     assertContains "Verify whether 'wcurl' correctly sets a custom output filename" "${ret}" '--output'
     assertContains "Verify whether 'wcurl' correctly sets a custom output filename" "${ret}" 'test filename2'
 }
 
-testUrlDefaultName()
-{
+testUrlDefaultName() {
     url='example%20with%20spaces.com'
     ret=$(${WCURL_CMD} ${url} 2>&1)
     assertContains "Verify whether 'wcurl' chooses the correct default filename when there's no path in the URL" "${ret}" 'index.html'
 }
 
-testUrlDefaultNameTrailingSlash()
-{
+testUrlDefaultNameTrailingSlash() {
     url='example%20with%20spaces.com/'
     ret=$(${WCURL_CMD} ${url} 2>&1)
     assertContains "Verify whether 'wcurl' chooses the correct default filename when there's no path in the URL and the URl ends with a slash" "${ret}" 'index.html'
 }
 
-testUrlDecodingWhitespaces()
-{
+testUrlDecodingWhitespaces() {
     url='example.com/filename%20with%20spaces'
     ret=$(${WCURL_CMD} ${url} 2>&1)
     assertContains "Verify whether 'wcurl' successfully decodes percent-encoded whitespaces in URLs" "${ret}" 'filename with spaces'
 }
 
-testUrlDecodingWhitespacesTwoFiles()
-{
+testUrlDecodingWhitespacesTwoFiles() {
     url='example.com/filename%20with%20spaces'
     url_2='example.com/filename2%20with%20spaces'
     ret=$(${WCURL_CMD} ${url} ${url_2} 2>&1)
@@ -178,22 +161,19 @@ testUrlDecodingWhitespacesTwoFiles()
     assertContains "Verify whether 'wcurl' successfully decodes percent-encoded whitespaces in URLs" "${ret}" 'filename2 with spaces'
 }
 
-testUrlDecodingDisabled()
-{
+testUrlDecodingDisabled() {
     url='example.com/filename%20with%20spaces'
     ret=$(${WCURL_CMD} --no-decode-filename ${url} 2>&1)
     assertContains "Verify whether 'wcurl' successfully decodes percent-encoded whitespaces in URLs" "${ret}" 'filename%20with%20spaces'
 }
 
-testUrlDecodingWhitespacesQueryString()
-{
+testUrlDecodingWhitespacesQueryString() {
     url='example.com/filename%20with%20spaces?query=string'
     ret=$(${WCURL_CMD} "${url}" 2>&1)
     assertContains "Verify whether 'wcurl' successfully decodes percent-encoded whitespaces in URLs with query strings" "${ret}" 'filename with spaces'
 }
 
-testUrlDecodingWhitespacesTrailingSlash()
-{
+testUrlDecodingWhitespacesTrailingSlash() {
     url='example.com/filename%20with%20spaces/'
     ret=$(${WCURL_CMD} ${url} 2>&1)
     assertContains "Verify whether 'wcurl' successfully uses the default filename when the URL ends with a slash" "${ret}" 'index.html'
@@ -202,8 +182,7 @@ testUrlDecodingWhitespacesTrailingSlash()
 # Test decoding a bunch of different languages (that don't use the latin
 # alphabet), we could split each language on its own test, but for now it
 # doesn't make a difference.
-testUrlDecodingNonLatinLanguages()
-{
+testUrlDecodingNonLatinLanguages() {
     # Arabic
     url='example.com/%D8%AA%D8%B1%D9%85%D9%8A%D8%B2_%D8%A7%D9%84%D9%86%D8%B3%D8%A8%D8%A9_%D8%A7%D9%84%D9%85%D8%A6%D9%88%D9%8A%D8%A9'
     ret=$(${WCURL_CMD} ${url} 2>&1)
