@@ -17,14 +17,15 @@ If they do not ship it, consider making a request for it.
 
 You can always install wcurl by simply downloading the script:
 
-```console
+```sh
 curl -fLO https://github.com/curl/wcurl/releases/latest/download/wcurl
 chmod +x wcurl
 sudo mv wcurl /usr/local/bin/wcurl
 ```
 
 # Install wcurl's manpage
-```console
+
+```sh
 curl -fLO https://github.com/curl/wcurl/releases/latest/download/wcurl.1
 sudo mkdir -p /usr/local/share/man/man1/
 sudo mv wcurl.1 /usr/local/share/man/man1/wcurl.1
@@ -34,15 +35,18 @@ sudo mandb
 # wcurl(1)
 
 **wcurl**
-- a simple wrapper around curl to easily download files.
+
+* a simple wrapper around curl to easily download files.
 
 # Synopsis
 
-    wcurl <URL>...
-    wcurl [--curl-options <CURL_OPTIONS>]... [--no-decode-filename] [-o|-O|--output <PATH>] [--dry-run] [--] <URL>...
-    wcurl [--curl-options=<CURL_OPTIONS>]... [--no-decode-filename] [--output=<PATH>] [--dry-run] [--] <URL>...
-    wcurl -V|--version
-    wcurl -h|--help
+```text
+wcurl <URL>...
+wcurl [--curl-options <CURL_OPTIONS>]... [--no-decode-filename] [-o|-O|--output <PATH>] [--dry-run] [--] <URL>...
+wcurl [--curl-options=<CURL_OPTIONS>]... [--no-decode-filename] [--output=<PATH>] [--dry-run] [--] <URL>...
+wcurl -V|--version
+wcurl -h|--help
+```
 
 # Description
 
@@ -55,7 +59,6 @@ sane defaults.
 If you need anything more complex, you can provide any of curl's supported
 parameters via the `--curl-options` option. Just beware that you likely
 should be using curl directly if your use case is not covered.
-
 
 * By default, **wcurl** does:
   * Percent-encode whitespaces in URLs;
@@ -114,19 +117,27 @@ then performs the parsing. May be specified more than once.
 
 * Download a single file:
 
-  `wcurl example.com/filename.txt`
+  ```sh
+  wcurl example.com/filename.txt
+  ```
 
 * Download two files in parallel:
 
-  `wcurl example.com/filename1.txt example.com/filename2.txt`
+  ```sh
+  wcurl example.com/filename1.txt example.com/filename2.txt
+  ```
 
-* Download a file passing the _--progress-bar_ and _--http2_ flags to curl:
+* Download a file passing the `--progress-bar` and `--http2` flags to curl:
 
-  `wcurl --curl-options="--progress-bar --http2" example.com/filename.txt`
+  ```sh
+  wcurl --curl-options="--progress-bar --http2" example.com/filename.txt
+  ```
 
 * Resume from an interrupted download (if more options are used, this needs to be the last one in the list):
 
-  `wcurl --curl-options="--continue-at -" example.com/filename.txt`
+  ```sh
+  wcurl --curl-options="--continue-at -" example.com/filename.txt
+  ```
 
 # Running the testsuite
 
@@ -145,8 +156,8 @@ script:
 
 To lint the shell scripts, you need to install `shellcheck` and `checkbashisms`. These tools check the scripts for issues and ensure they follow best practices.
 
-- On Debian-like systems: `apt install shellcheck devscripts`
-- On Fedora-like systems: `dnf install shellcheck devscripts`
+* On Debian-like systems: `apt install shellcheck devscripts`
+* On Fedora-like systems: `dnf install shellcheck devscripts`
 
 After installation, you can run `shellcheck` and `checkbashisms` by executing the following commands:
 
