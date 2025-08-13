@@ -129,6 +129,10 @@ be the last one in the list):
 
 **wcurl --curl-options="--continue-at -" example.com/filename.txt**
 
+Download a list of URLs from a file:
+
+**while read -r url; do wcurl "$url"; done < filename.txt**
+
 # AUTHORS
 
     Samuel Henrique \<samueloph@debian.org\>
