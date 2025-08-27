@@ -133,7 +133,7 @@ sanitize()
 is_subset_of()
 {
     case "${1}" in
-        *[!${2}]*|'') return 1;;
+        *[!${2}]* | '') return 1 ;;
     esac
 }
 
@@ -151,9 +151,9 @@ percent_decode()
                 decode_out="${decode_out}${decode_hex2}"
                 # Skip decoding if this is a control character (00-1F).
                 # Skip decoding if DECODE_FILENAME is not "true".
-                if is_subset_of "${decode_hex1}" "23456789abcdefABCDEF" && \
-                    is_subset_of "${decode_hex2}" "0123456789abcdefABCDEF" && \
-                    [ "${DECODE_FILENAME}" = "true" ]; then
+                if is_subset_of "${decode_hex1}" "23456789abcdefABCDEF" \
+                    && is_subset_of "${decode_hex2}" "0123456789abcdefABCDEF" \
+                    && [ "${DECODE_FILENAME}" = "true" ]; then
                     # Use printf to decode it into octal and then decode it to the final format.
                     decode_out="$(printf "%b" "\\$(printf %o "0x${decode_hex1}${decode_hex2}")")"
                 fi
@@ -171,7 +171,7 @@ get_url_filename()
     # If what remains contains a slash, there's a path; return it percent-decoded.
     case "${hostname_and_path}" in
         # sed to remove everything preceding the last '/', e.g.: "example/something" becomes "something"
-        */*) percent_decode "$(printf %s "${hostname_and_path}" | sed -e 's,^.*/,,')";;
+        */*) percent_decode "$(printf %s "${hostname_and_path}" | sed -e 's,^.*/,,')" ;;
     esac
     # No slash means there was just a hostname and no path; return empty string.
 }
@@ -268,13 +268,13 @@ while [ -n "${1-}" ]; do
             OUTPUT_PATH="${opt}"
             ;;
 
-        -o|-O|--output)
+        -o | -O | --output)
             shift
             HAS_USER_SET_OUTPUT="true"
             OUTPUT_PATH="${1}"
             ;;
 
-        -o*|-O*)
+        -o* | -O*)
             opt=$(printf "%s\n" "${1}" | sed 's/^-[oO]//')
             HAS_USER_SET_OUTPUT="true"
             OUTPUT_PATH="${opt}"
@@ -284,12 +284,12 @@ while [ -n "${1-}" ]; do
             DECODE_FILENAME="false"
             ;;
 
-        -h|--help)
+        -h | --help)
             usage
             exit 0
             ;;
 
-        -V|--version)
+        -V | --version)
             print_version
             exit 0
             ;;
