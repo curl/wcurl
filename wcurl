@@ -231,7 +231,7 @@ exec_curl()
             [ -z "${OUTPUT_PATH}" ] && OUTPUT_PATH=index.html
         fi
         # shellcheck disable=SC2086
-        set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${CURL_HAS_NO_CLOBBER} ${CURL_OPTIONS} --output "${OUTPUT_PATH}" "${url}"
+        set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${CURL_HAS_NO_CLOBBER} --output "${OUTPUT_PATH}" ${CURL_OPTIONS} "${url}"
         NEXT_PARAMETER="--next"
     done
 
