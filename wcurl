@@ -49,8 +49,9 @@ usage()
 ${PROGRAM_NAME} -- a simple wrapper around curl to easily download files.
 
 Usage: ${PROGRAM_NAME} <URL>...
-       ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>]... [--no-decode-filename] [-o|-O|--output <PATH>] [--dry-run] [--] <URL>...
-       ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>]... [--no-decode-filename] [--output=<PATH>] [--dry-run] [--] <URL>...
+       ${PROGRAM_NAME} -i <INPUT_FILE>...
+       ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>]... [--no-decode-filename] [-o|-O|--output <PATH>] [-i|--input-file <PATH>]... [--dry-run] [--] [<URL>]...
+       ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>]... [--no-decode-filename] [--output=<PATH>] [--input-file=<PATH>]... [--dry-run] [--] [<URL>]...
        ${PROGRAM_NAME} -h|--help
        ${PROGRAM_NAME} -V|--version
 
@@ -63,6 +64,10 @@ Options:
                            multiple URLs are provided, resulting files share the same name with a
                            number appended to the end (curl >= 7.83.0). If this option is provided
                            multiple times, only the last value is considered.
+
+  -i, --input-file <PATH>: Download all URLs listed in the input file. Can be used multiple times
+                           and mixed with URLs as parameters. This is equivalent to setting
+                           "@<PATH>" as an URL argument. Lines starting with "#" are ignored.
 
   --no-decode-filename: Don't percent-decode the output filename, even if the percent-encoding in
                         the URL was done by wcurl, e.g.: The URL contained whitespaces.
@@ -79,6 +84,8 @@ Options:
   <URL>: URL to be downloaded. Anything that is not a parameter is considered
          an URL. Whitespaces are percent-encoded and the URL is passed to curl, which
          then performs the parsing. May be specified more than once.
+         Arguments starting with "@" are considered as a file containing multiple URLs to be
+         downloaded; "@<PATH>" is equivalent to using "--input-file <PATH>".
 _EOF_
 }
 
@@ -115,6 +122,34 @@ readonly PER_URL_PARAMETERS="\
 
 # Whether to invoke curl or not.
 DRY_RUN="false"
+
+# Add URLs to list of URLs to be downloaded.
+# If the argument starts with "@", then it's a file containing the URLs
+# to be downloaded (an "input file").
+# When parsing an input file, ignore lines starting with "#".
+# This function also percent-encodes the whitespaces in URLs.
+add_urls()
+{
+    case "$1" in
+        @*)
+            while read -r url; do
+                case "$url" in
+                    \#*) : ;;
+                    *)
+                        # Percent-encode whitespaces into %20, since wget supports those URLs.
+                        newurl=$(printf "%s\n" "${url}" | sed 's/ /%20/g')
+                        URLS="${URLS} ${newurl}"
+                        ;;
+                esac
+            done < "${1#@}"
+            ;;
+        *)
+            # Percent-encode whitespaces into %20, since wget supports those URLs.
+            newurl=$(printf "%s\n" "${1}" | sed 's/ /%20/g')
+            URLS="${URLS} ${newurl}"
+            ;;
+    esac
+}
 
 # Sanitize parameters.
 sanitize()
@@ -279,6 +314,19 @@ while [ -n "${1-}" ]; do
             OUTPUT_PATH="${opt}"
             ;;
 
+        --input-file=*)
+            add_urls "@$(printf "%s\n" "${1}" | sed 's/^--input-file=//')"
+            ;;
+
+        -i | --input-file)
+            shift
+            add_urls "@${1}"
+            ;;
+
+        -i*)
+            add_urls "@$(printf "%s\n" "${1}" | sed 's/^-i//')"
+            ;;
+
         --no-decode-filename)
             DECODE_FILENAME="false"
             ;;
@@ -296,10 +344,8 @@ while [ -n "${1-}" ]; do
         --)
             # This is the start of the list of URLs.
             shift
-            for url in "$@"; do
-                # Encode whitespaces into %20, since wget supports those URLs.
-                newurl=$(printf "%s\n" "${url}" | sed 's/ /%20/g')
-                URLS="${URLS} ${newurl}"
+            for arg in "$@"; do
+                add_urls "${arg}"
             done
             break
             ;;
@@ -310,9 +356,7 @@ while [ -n "${1-}" ]; do
 
         *)
             # This must be a URL.
-            # Encode whitespaces into %20, since wget supports those URLs.
-            newurl=$(printf "%s\n" "${1}" | sed 's/ /%20/g')
-            URLS="${URLS} ${newurl}"
+            add_urls "${1}"
             ;;
     esac
     shift
