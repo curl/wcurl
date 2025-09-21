@@ -45,6 +45,9 @@ By default, **wcurl** does:
 ## * Download multiple URLs in parallel
     if the installed curl's version is \>= 7.66.0 (--parallel);
 
+## * Use a total number of 5 parallel connections to the same protocol + hostname + port number target
+    if the installed curl's version is \>= 8.16.0 (--parallel-max-host);
+
 ## * Follow redirects;
 
 ## * Automatically choose a filename as output;
@@ -128,6 +131,10 @@ Resume from an interrupted download (if more options are used, this needs to
 be the last one in the list):
 
 **wcurl --curl-options="--continue-at -" example.com/filename.txt**
+
+Download multiple files without a limit of concurrent connections per host (the default limit is 5):
+
+**wcurl --curl-options="--parallel-max-host 0" example.com/filename1.txt example.com/filename2.txt**
 
 # AUTHORS
 

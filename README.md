@@ -63,6 +63,7 @@ should be using curl directly if your use case is not covered.
 * By default, **wcurl** does:
   * Percent-encode whitespaces in URLs;
   * Download multiple URLs in parallel if the installed curl's version is >= 7.66.0 (`--parallel`);
+  * Use a total number of 5 parallel connections to the same protocol + hostname + port number target if the installed curl's version is >= 8.16.0 (`--parallel-max-host`);
   * Follow redirects;
   * Automatically choose a filename as output;
   * Avoid overwriting files if the installed curl's version is >= 7.83.0 (`--no-clobber`);
@@ -137,6 +138,12 @@ then performs the parsing. May be specified more than once.
 
   ```sh
   wcurl --curl-options="--continue-at -" example.com/filename.txt
+  ```
+
+* Download multiple files without a limit of concurrent connections per host (the default limit is 5):
+
+  ```sh
+  wcurl --curl-options="--parallel-max-host 0" example.com/filename1.txt example.com/filename2.txt
   ```
 
 # Running the testsuite

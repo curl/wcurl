@@ -181,7 +181,7 @@ exec_curl()
 {
     CMD="curl "
 
-    # Store version to check if it supports --no-clobber and --parallel.
+    # Store version to check if it supports --no-clobber, --parallel and --parallel-max-host.
     curl_version=$($CMD --version | cut -f2 -d' ' | head -n1)
     curl_version_major=$(echo "$curl_version" | cut -f1 -d.)
     curl_version_minor=$(echo "$curl_version" | cut -f2 -d.)
@@ -190,9 +190,13 @@ exec_curl()
     CURL_PARALLEL=""
     # --no-clobber is only supported since 7.83.0.
     # --parallel is only supported since 7.66.0.
+    # --parallel-max-host is only supported since 8.16.0.
     if [ "${curl_version_major}" -ge 8 ]; then
         CURL_NO_CLOBBER="--no-clobber"
         CURL_PARALLEL="--parallel"
+        if [ "${curl_version_minor}" -ge 16 ]; then
+            CURL_PARALLEL="--parallel --parallel-max-host 5"
+        fi
     elif [ "${curl_version_major}" -eq 7 ]; then
         if [ "${curl_version_minor}" -ge 83 ]; then
             CURL_NO_CLOBBER="--no-clobber"
@@ -202,7 +206,7 @@ exec_curl()
         fi
     fi
 
-    # Detecting whether we need --parallel.  It's easier to rely on
+    # Detecting whether we need --parallel. It's easier to rely on
     # the shell's argument parsing.
     # shellcheck disable=SC2086
     set -- $URLS
