@@ -135,6 +135,10 @@ Download multiple files without a limit of concurrent connections per host (the 
 
 **wcurl --curl-options="--parallel-max-host 0" example.com/filename1.txt example.com/filename2.txt**
 
+Download a list of URLs from a file:
+
+**while read -r url; do wcurl "$url"; done < filename.txt**
+
 # AUTHORS
 
     Samuel Henrique \<samueloph@debian.org\>
