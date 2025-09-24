@@ -9,6 +9,15 @@ SPDX-License-Identifier: curl
 # Changelog
 
 ## [UNRELEASED]
+ * Set `parallel-max-host` to 5 if curl>=8.16.0.
+ * Fix example for `--continue-at`.
+ * Consistent variable names for feature checks.
+ * Set `CURL_OPTIONS` right before the URL, allowing override of output file name.
+ * Apply `shfmt` in all shellscript files.
+ * Minor Markdown tweaks in README.md.
+ * Update installation instructions.
+ * Fix typos.
+ * Update AUTHORS.
 
 ## [v2025.05.26]
  * Increase number of retries to 5 (32 sec total time), fixing the problem with
