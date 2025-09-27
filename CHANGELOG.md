@@ -8,7 +8,7 @@ SPDX-License-Identifier: curl
 
 # Changelog
 
-## [UNRELEASED]
+## [v2025.09.27]
  * Set `parallel-max-host` to 5 if curl>=8.16.0.
  * Fix example for `--continue-at`.
  * Consistent variable names for feature checks.
