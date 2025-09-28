@@ -42,8 +42,9 @@ sudo mandb
 
 ```text
 wcurl <URL>...
-wcurl [--curl-options <CURL_OPTIONS>]... [--no-decode-filename] [-o|-O|--output <PATH>] [--dry-run] [--] <URL>...
-wcurl [--curl-options=<CURL_OPTIONS>]... [--no-decode-filename] [--output=<PATH>] [--dry-run] [--] <URL>...
+wcurl -i <INPUT_FILE>...
+wcurl [--curl-options <CURL_OPTIONS>]... [--no-decode-filename] [-o|-O|--output <PATH>] [-i|--input-file <PATH>]... [--dry-run] [--] [<URL>]...
+wcurl [--curl-options=<CURL_OPTIONS>]... [--no-decode-filename] [--output=<PATH>] [--input-file=<PATH>]... [--dry-run] [--] [<URL>]...
 wcurl -V|--version
 wcurl -h|--help
 ```
@@ -86,6 +87,12 @@ should be using curl directly if your use case is not covered.
   the end (curl >= 7.83.0). If this option is provided multiple times, only the
   last value is considered.
 
+* `-i, --input-file=<PATH>`
+
+  Download all URLs listed in the input file. Can be used multiple times and
+  mixed with URLs as parameters. This is equivalent to setting `@\<PATH\>` as an
+  URL argument. Lines starting with `#` are ignored.
+
 * `--no-decode-filename`
 
   Don't percent-decode the output filename, even if the percent-encoding in the
@@ -113,6 +120,8 @@ instead forwarded to the curl invocation.
 URL to be downloaded. Anything that is not a parameter is considered
 an URL. Whitespaces are percent-encoded and the URL is passed to curl, which
 then performs the parsing. May be specified more than once.
+Arguments starting with `@` are considered as a file containing multiple URLs to
+be downloaded; `@\<PATH\>` is equivalent to using `--input-file \<PATH\>`.
 
 # Examples
 
