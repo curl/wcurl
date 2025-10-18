@@ -46,7 +46,7 @@ jobs:
     steps:
       - name: Install tools
         run: |
-          /home/linuxbrew/.linuxbrew/bin/brew install shellcheck checkbashisms shfmt
+          /home/linuxbrew/.linuxbrew/bin/brew install shellcheck checkbashisms shfmt codespell typos-cli
 
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -70,6 +70,18 @@ jobs:
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           shfmt --version
           shfmt --func-next-line --space-redirects --case-indent --binary-next-line --indent 4 --posix --diff .
+
+      - name: Run codespell
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          codespell --version
+          codespell
+
+      - name: Run typos
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          typos --version
+          typos
 
   debian:
     name: debian
