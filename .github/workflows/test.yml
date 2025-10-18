@@ -50,7 +50,7 @@ jobs:
           sudo apt-get install -y shellcheck devscripts shfmt
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           persist-credentials: false
 
@@ -75,7 +75,7 @@ jobs:
           apt-get install -y curl shunit2
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           persist-credentials: false
 
@@ -98,7 +98,7 @@ jobs:
           cp shunit2 /usr/local/bin/shunit2
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           persist-credentials: false
 
@@ -113,7 +113,7 @@ jobs:
         run: brew install shunit2
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Run shunit2 tests
         run: ./tests/tests.sh
