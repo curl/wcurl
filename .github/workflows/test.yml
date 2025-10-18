@@ -46,7 +46,7 @@ jobs:
     steps:
       - name: Install tools
         run: |
-          HOMEBREW_NO_AUTO_UPDATE=1 /home/linuxbrew/.linuxbrew/bin/brew install shellcheck checkbashisms shfmt
+          /home/linuxbrew/.linuxbrew/bin/brew install shellcheck checkbashisms shfmt
 
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -116,7 +116,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Install shunit2
-        run: brew install shunit2
+        run: HOMEBREW_NO_AUTO_UPDATE=1 brew install shunit2
 
       - name: Checkout repository
         uses: actions/checkout@v5
