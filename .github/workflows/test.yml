@@ -79,8 +79,8 @@ jobs:
     steps:
       - name: Install curl and shunit2
         run: |
-          apt-get update
-          apt-get install -y curl shunit2 --no-install-suggests --no-install-recommends
+          apt-get -o Dpkg::Use-Pty=0 update
+          apt-get -o Dpkg::Use-Pty=0 install -y curl shunit2 --no-install-suggests --no-install-recommends
 
       - name: Checkout repository
         uses: actions/checkout@v5
