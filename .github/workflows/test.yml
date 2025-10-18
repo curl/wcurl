@@ -46,9 +46,7 @@ jobs:
     steps:
       - name: Install tools
         run: |
-          HOMEBREW_NO_AUTO_UPDATE=1 /home/linuxbrew/.linuxbrew/bin/brew install shellcheck
-          sudo apt-get update
-          sudo apt-get install -y devscripts shfmt
+          HOMEBREW_NO_AUTO_UPDATE=1 /home/linuxbrew/.linuxbrew/bin/brew install shellcheck checkbashisms shfmt
 
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -62,10 +60,14 @@ jobs:
           shellcheck $(grep -l '^#!/bin/sh' $(git ls-files))
 
       - name: Run checkbashisms
-        run: checkbashisms $(grep -l '^#!/bin/sh' $(git ls-files))
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          checkbashisms $(grep -l '^#!/bin/sh' $(git ls-files))
 
       - name: Run shfmt
-        run: shfmt --func-next-line --space-redirects --case-indent --binary-next-line --indent 4 --posix --diff .
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          shfmt --func-next-line --space-redirects --case-indent --binary-next-line --indent 4 --posix --diff .
 
   debian:
     name: debian
