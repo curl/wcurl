@@ -62,11 +62,13 @@ jobs:
       - name: Run checkbashisms
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          checkbashisms --version
           checkbashisms $(grep -l '^#!/bin/sh' $(git ls-files))
 
       - name: Run shfmt
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          shfmt --version
           shfmt --func-next-line --space-redirects --case-indent --binary-next-line --indent 4 --posix --diff .
 
   debian:
