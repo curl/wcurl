@@ -46,8 +46,9 @@ jobs:
     steps:
       - name: Install tools
         run: |
+          HOMEBREW_NO_AUTO_UPDATE=1 /home/linuxbrew/.linuxbrew/bin/brew install shellcheck
           sudo apt-get update
-          sudo apt-get install -y shellcheck devscripts shfmt
+          sudo apt-get install -y devscripts shfmt
 
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -55,7 +56,10 @@ jobs:
           persist-credentials: false
 
       - name: Run shellcheck
-        run: shellcheck $(grep -l '^#!/bin/sh' $(git ls-files))
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          shellcheck --version
+          shellcheck $(grep -l '^#!/bin/sh' $(git ls-files))
 
       - name: Run checkbashisms
         run: checkbashisms $(grep -l '^#!/bin/sh' $(git ls-files))
