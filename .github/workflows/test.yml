@@ -42,16 +42,24 @@ permissions: {}
 
 jobs:
   lint:
+    name: lint
     runs-on: ubuntu-latest
     steps:
       - name: Install tools
         run: |
-          /home/linuxbrew/.linuxbrew/bin/brew install shellcheck checkbashisms shfmt codespell typos-cli
+          /home/linuxbrew/.linuxbrew/bin/brew install zizmor shellcheck checkbashisms shfmt codespell typos-cli
 
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
           persist-credentials: false
+
+      - name: Run zizmor
+        env:
+          GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          zizmor --pedantic .github/workflows/*.yml
 
       - name: Run shellcheck
         run: |
@@ -87,7 +95,7 @@ jobs:
     name: debian
     runs-on: ubuntu-latest
     container:
-      image: debian:stable
+      image: debian:stable  # zizmor: ignore[unpinned-images]
     steps:
       - name: Install curl and shunit2
         run: |
@@ -106,7 +114,7 @@ jobs:
     name: fedora
     runs-on: ubuntu-latest
     container:
-      image: fedora:latest
+      image: fedora:latest  # zizmor: ignore[unpinned-images]
     steps:
       - name: Install git and shunit2
         run: |
