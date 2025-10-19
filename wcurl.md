@@ -144,7 +144,7 @@ Download multiple files without a limit of concurrent connections per host (the 
 # REPORTING BUGS
 
 If you experience any problems with **wcurl** that you do not experience with
-curl, submit an issue on Github: https://github.com/curl/wcurl
+curl, submit an issue on GitHub: https://github.com/curl/wcurl
 
 # COPYRIGHT
 
