@@ -45,17 +45,17 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
       - name: Install tools
         run: |
           /home/linuxbrew/.linuxbrew/bin/brew install zizmor shellcheck checkbashisms shfmt typos-cli
           python3 -m venv ~/venv
           ~/venv/bin/pip --disable-pip-version-check --no-input --no-cache-dir install --progress-bar off --prefer-binary \
             -r .github/workflows/requirements.txt
-
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          persist-credentials: false
 
       - name: 'REUSE check'
         run: |
