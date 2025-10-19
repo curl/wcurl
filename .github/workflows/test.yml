@@ -47,12 +47,20 @@ jobs:
     steps:
       - name: Install tools
         run: |
-          /home/linuxbrew/.linuxbrew/bin/brew install zizmor shellcheck checkbashisms shfmt codespell typos-cli
+          /home/linuxbrew/.linuxbrew/bin/brew install zizmor shellcheck checkbashisms shfmt typos-cli
+          python3 -m venv ~/venv
+          ~/venv/bin/pip --disable-pip-version-check --no-input --no-cache-dir install --progress-bar off --prefer-binary \
+            -r .github/workflows/requirements.txt
 
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
           persist-credentials: false
+
+      - name: 'REUSE check'
+        run: |
+          source ~/venv/bin/activate
+          reuse lint
 
       - name: Run zizmor
         env:
@@ -81,7 +89,7 @@ jobs:
 
       - name: Run codespell
         run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          source ~/venv/bin/activate
           codespell --version
           codespell
 
