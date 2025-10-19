@@ -29,7 +29,7 @@ SPDX-License-Identifier: curl
    standardizing to curl's documentation format.
 
 ## [v2025.02.24]
- * Allow `-o` and `-O` to be used without whitespaces (e.g.: `-oNAME`).
+ * Allow `-o` and `-O` to be used without whitespace (e.g.: `-oNAME`).
  * Fix capitalization of the name of copyright owner sergiodj.
  * Use the standard copyright header in manpage.
  * Create a GitHub workflow for tests and linting.
