@@ -61,7 +61,7 @@ parameters via the `--curl-options` option. Just beware that you likely
 should be using curl directly if your use case is not covered.
 
 * By default, **wcurl** does:
-  * Percent-encode whitespaces in URLs;
+  * Percent-encode whitespace in URLs;
   * Download multiple URLs in parallel if the installed curl's version is >= 7.66.0 (`--parallel`);
   * Use a total number of 5 parallel connections to the same protocol + hostname + port number target if the installed curl's version is >= 8.16.0 (`--parallel-max-host`);
   * Follow redirects;
@@ -89,7 +89,7 @@ should be using curl directly if your use case is not covered.
 * `--no-decode-filename`
 
   Don't percent-decode the output filename, even if the percent-encoding in the
-  URL was done by wcurl, e.g.: The URL contained whitespaces.
+  URL was done by wcurl, e.g.: The URL contained whitespace.
 
 * `--dry-run`
 
@@ -111,7 +111,7 @@ instead forwarded to the curl invocation.
 # URL
 
 URL to be downloaded. Anything that is not a parameter is considered
-an URL. Whitespaces are percent-encoded and the URL is passed to curl, which
+an URL. Whitespace is percent-encoded and the URL is passed to curl, which
 then performs the parsing. May be specified more than once.
 
 # Examples

@@ -29,10 +29,10 @@ SPDX-License-Identifier: curl
    standardizing to curl's documentation format.
 
 ## [v2025.02.24]
- * Allow `-o` and `-O` to be used without whitespaces (e.g.: `-oNAME`).
+ * Allow `-o` and `-O` to be used without whitespace (e.g.: `-oNAME`).
  * Fix capitalization of the name of copyright owner sergiodj.
  * Use the standard copyright header in manpage.
- * Create a github workflow for tests and linting.
+ * Create a GitHub workflow for tests and linting.
  * Add missing breakline to README to fix formatting.
  * Update manpage to describe that `--output` can be used without the equal sign.
  * Add installation instructions to README.
@@ -66,7 +66,7 @@ SPDX-License-Identifier: curl
    output files.
  * Add more tests.
  * Remove the need for GNU coreutils' `realpath` for tests.
- * Update manpage with links to Github and Debian's Salsa.
+ * Update manpage with links to GitHub and Debian's Salsa.
  * Update LICENSE file with new contributors.
 
 ## [v2024-07-07]
