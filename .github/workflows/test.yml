@@ -91,13 +91,18 @@ jobs:
         run: |
           source ~/venv/bin/activate
           codespell --version
-          codespell
+          codespell \
+            $(git ls-files)
 
       - name: Run typos
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           typos --version
-          typos
+          git ls-files | typos \
+            --isolated \
+            --force-exclude \
+            --config '.github/scripts/typos.toml' \
+            --file-list -
 
   debian:
     name: debian
