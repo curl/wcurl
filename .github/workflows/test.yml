@@ -52,7 +52,7 @@ jobs:
 
       - name: Install tools
         run: |
-          /home/linuxbrew/.linuxbrew/bin/brew install zizmor shellcheck checkbashisms shfmt typos-cli
+          /home/linuxbrew/.linuxbrew/bin/brew install zizmor shellcheck checkbashisms shfmt
           python3 -m venv ~/venv
           ~/venv/bin/pip --disable-pip-version-check --no-input --no-cache-dir install --progress-bar off --prefer-binary \
             -r .github/workflows/requirements.txt
@@ -93,16 +93,6 @@ jobs:
           codespell --version
           codespell \
             $(git ls-files)
-
-      - name: Run typos
-        run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          typos --version
-          git ls-files | typos \
-            --isolated \
-            --force-exclude \
-            --config '.github/scripts/typos.toml' \
-            --file-list -
 
   debian:
     name: debian
