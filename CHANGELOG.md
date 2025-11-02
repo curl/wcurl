@@ -8,6 +8,11 @@ SPDX-License-Identifier: curl
 
 # Changelog
 
+## [UNRELEASED]
+ * Don't percent-decode `/` and `\` in output file name.
+ * Fix typos reported by pyspelling.
+ * Multiple improvements to GitHub Actions.
+
 ## [v2025.09.27]
  * Set `parallel-max-host` to 5 if curl>=8.16.0.
  * Fix example for `--continue-at`.
