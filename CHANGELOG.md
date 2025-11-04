@@ -8,6 +8,8 @@ SPDX-License-Identifier: curl
 
 # Changelog
 
+## [UNRELEASED]
+
 ## [v2025.11.04]
  * Fix CVE-2025-11563: Don't percent-decode `/` and `\` in output file name to
    avoid path traversal.
