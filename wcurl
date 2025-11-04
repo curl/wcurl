@@ -85,7 +85,7 @@ _EOF_
 # Display an error message and bail out.
 error()
 {
-    printf "%s\n" "$*" > /dev/stderr
+    printf "%s\n" "$*" >&2
     exit 1
 }
 
