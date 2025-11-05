@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: 2025 Eric Curtin <eric.curtin@docker.com>
+#
+# SPDX-License-Identifier: curl
+
+[package]
+name = "wcurl"
+version = "2025.11.4"
+edition = "2021"
+description = "A simple wrapper around curl to easily download files"
+license = "curl"
+authors = [
+    "Eric Curtin <eric.curtin@docker.com>"
+]
+
+[dependencies]
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"
+opt-level = "s"  # Optimize for size
+debug = false

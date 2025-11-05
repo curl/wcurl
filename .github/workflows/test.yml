@@ -60,6 +60,7 @@ jobs:
       - name: 'REUSE check'
         run: |
           source ~/venv/bin/activate
+          rm wcurl-rs/Cargo.lock
           reuse lint
 
       - name: Run zizmor
