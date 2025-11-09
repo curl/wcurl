@@ -203,8 +203,8 @@ testUrlDecodingWhitespaceTrailingSlash()
 testUrlDecodingBackslashes()
 {
     url='example.com/filename%5Cwith%2Fbackslashes%5c%2f'
-    ret=$(${WCURL_CMD} ${url} 2>&1)
-    assertContains "Verify whether 'wcurl' successfully uses the default filename when the URL ends with a slash" "${ret}" 'filename%5Cwith%2Fbackslashes%5c%2f'
+    ret=$(${WCURL_CMD} ${url} 2>&1 | tr '\n' ' ')
+    assertContains "Verify whether 'wcurl' successfully uses the default filename when the URL ends with a slash" "${ret}" '--output filename%5Cwith%2Fbackslashes%5c%2f'
 }
 
 # Test decoding a bunch of different languages (that don't use the latin
