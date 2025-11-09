@@ -8,7 +8,10 @@ SPDX-License-Identifier: curl
 
 # Changelog
 
-## [UNRELEASED]
+## [v2025.11.09]
+ * Really fix CVE-2025-11563: The patch from v2025.11.04 didn't fix the CVE and
+   the unit test verifying it was broken.
+ * Replace `>/dev/stderr` with `>&2` for portability.
 
 ## [v2025.11.04]
  * Fix CVE-2025-11563: Don't percent-decode `/` and `\` in output file name to
