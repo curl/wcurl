@@ -73,13 +73,13 @@ jobs:
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           shellcheck --version
-          shellcheck $(grep -l '^#!/bin/sh' $(git ls-files))
+          git grep -z -l '^#!/bin/sh' | xargs -0 -r shellcheck --
 
       - name: Run checkbashisms
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           checkbashisms --version
-          checkbashisms $(grep -l '^#!/bin/sh' $(git ls-files))
+          git grep -z -l '^#!/bin/sh' | xargs -0 -r checkbashisms --
 
       - name: Run shfmt
         run: |
