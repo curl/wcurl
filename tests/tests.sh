@@ -28,7 +28,13 @@
 
 ROOTDIR=$(CDPATH=$(cd -- "$(dirname -- "$0")/.." && pwd))
 readonly ROOTDIR
-export PATH="${ROOTDIR}:${PATH}"
+
+# Determine which binary to use
+if [ -x "${ROOTDIR}/wcurl-rs/target/release/wcurl" ]; then
+    export PATH="${ROOTDIR}/wcurl-rs/target/release:${PATH}"
+else
+    export PATH="${ROOTDIR}:${PATH}"
+fi
 
 readonly WCURL_CMD="wcurl --dry-run "
 
