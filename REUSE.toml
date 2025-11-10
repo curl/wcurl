@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: curl
+# SPDX-FileCopyrightText: Daniel Stenberg, <daniel@haxx.se>, et al.
+
+# This file describes the licensing and copyright situation for files that
+# cannot be annotated directly, for example because of being simply
+# uncommentable. Unless this is the case, a file should be annotated directly.
+#
+# This follows the REUSE specification: https://reuse.software/spec-3.2/#reusetoml
+
+version = 1
+SPDX-PackageName = "wcurl"
+SPDX-PackageDownloadLocation = "https://curl.se/wcurl/"
+
+[[annotations]]
+path = [
+  "wcurl.1",
+]
+SPDX-FileCopyrightText = "Copyright (C) Samuel Henrique <samueloph@debian.org>, Sergio Durigan Junior <sergiodj@debian.org> and many contributors, see the AUTHORS file."
+SPDX-License-Identifier = "curl"
+# If there is licensing/copyright information in or next to these files, prefer that
+precedence = "closest"
