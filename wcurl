@@ -210,19 +210,21 @@ exec_curl()
 
     CURL_NO_CLOBBER=""
     CURL_PARALLEL=""
-    # --no-clobber is only supported since 7.83.0.
-    # --parallel is only supported since 7.66.0.
-    # --parallel-max-host is only supported since 8.16.0.
+
     if [ "${curl_version_major}" -ge 8 ]; then
         CURL_NO_CLOBBER="--no-clobber"
-        CURL_PARALLEL="--parallel"
-        if [ "${curl_version_minor}" -ge 16 ]; then
-            CURL_PARALLEL="--parallel --parallel-max-host 5"
+        CURL_PARALLEL="--parallel --parallel-max-host 5"
+
+        # --parallel-max-host is only supported since 8.16.0.
+        if [ "${curl_version_major}" -eq 8 ] && [ "${curl_version_minor}" -lt 16 ]; then
+            CURL_PARALLEL="--parallel"
         fi
     elif [ "${curl_version_major}" -eq 7 ]; then
+        # --no-clobber is only supported since 7.83.0.
         if [ "${curl_version_minor}" -ge 83 ]; then
             CURL_NO_CLOBBER="--no-clobber"
         fi
+        # --parallel is only supported since 7.66.0.
         if [ "${curl_version_minor}" -ge 66 ]; then
             CURL_PARALLEL="--parallel"
         fi
