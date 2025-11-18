@@ -9,12 +9,12 @@ SPDX-License-Identifier: curl
 # Changelog
 
 ## [v2025.11.09]
- * Really fix CVE-2025-11563: The patch from v2025.11.04 didn't fix the CVE and
+ * Really fix CVE-2025-11563: The patch from v2025.11.04 did not fix the CVE and
    the unit test verifying it was broken.
  * Replace `>/dev/stderr` with `>&2` for portability.
 
 ## [v2025.11.04]
- * Fix CVE-2025-11563: Don't percent-decode `/` and `\` in output file name to
+ * Fix CVE-2025-11563: Do not percent-decode `/` and `\` in output file name to
    avoid path traversal.
  * Fix typos reported by pyspelling.
  * Multiple improvements to GitHub Actions.
@@ -84,11 +84,11 @@ SPDX-License-Identifier: curl
  * Drop `getopt` usage, non-GNU/Linux environments are supported now.
  * Replace `-o`/`--opts=` parameters with `--curl-options`/`--curl-options=`.
    This alternative is more descriptive and it does not coincide with any of curl's parameters.
- * Stop auto-resuming downloads and don't overwrite files instead by default.
+ * Stop auto-resuming downloads and do not overwrite files instead by default.
    Safer alternative as otherwise curl can corrupt a file if the name clashes and the size of the existing one is smaller.
    One can easily change that behavior with `--curl-options="--continue-at -"`.
  * New `--dry-run` option: just print what would be invoked.
- * Choose HTTPS as a default protocol, in case there's none in the URL.
+ * Choose HTTPS as a default protocol, in case there is none in the URL.
  * Disable curl's URL globbing parser so `{}` and `[]` characters in URLs are not treated specially.
  * Implement support for `--`.
  * Implement `-V`/`--version` options.
@@ -98,10 +98,10 @@ SPDX-License-Identifier: curl
 ## [v2024-07-02]
  * First "public" release, announcing the project.
  * Use `exec` instead of `eval`.
- * Only set `--parallel` if there's more than one URL.
+ * Only set `--parallel` if there is more than one URL.
  * Fix manpage typo.
  * Update COPYRIGHT and AUTHORS in manpage.
- * Rewrite wcurl to remove bash dependency, it's now a POSIX shell script.
+ * Rewrite wcurl to remove bash dependency, it is now a POSIX shell script.
  * Add README.md.
  * Add LICENSE.
 
