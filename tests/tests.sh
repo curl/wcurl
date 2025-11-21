@@ -246,6 +246,35 @@ testCurlBinaryOption()
     assertContains "Verify whether 'wcurl' invokes the binary specified by '--curl-binary'" "${bin}" "${curlbin}"
 }
 
+testCurlVersionComparison()
+{
+    # Verify that using a very old curl version correctly omits
+    # --parallel, --no-clobber and --parallel-max-host.
+    url='example.com'
+    curlbin="${ROOTDIR}/tests/curl-mock-version"
+    ret=$(CURL_MOCK_VERSION="1.0.0" ${WCURL_CMD} --dry-run --curl-binary "${curlbin}" "${url}" "${url}")
+    assertNotContains "Verify whether 'wcurl' correctly omits --parallel when using very old curl" "${ret}" '--parallel'
+    assertNotContains "Verify whether 'wcurl' correctly omits --no-clobber when using very old curl" "${ret}" '--no-clobber'
+    assertNotContains "Verify whether 'wcurl' correctly omits --parallel-max-host when using very old curl" "${ret}" '--parallel-max-host'
+
+    # Verify that using a curl version that's >= 7.66.0 and < 7.83.0
+    # correctly adds --parallel but omits --no-clobber and --parallel-max-host.
+    ret=$(CURL_MOCK_VERSION="7.66.0" ${WCURL_CMD} --dry-run --curl-binary "${curlbin}" "${url}" "${url}")
+    assertContains "Verify whether 'wcurl' correctly adds --parallel when using curl >= 7.66.0" "${ret}" '--parallel'
+    assertNotContains "Verify whether 'wcurl' correctly omits --no-clobber when using curl >= 7.66.0 && curl < 7.83.0" "${ret}" '--no-clobber'
+    assertNotContains "Verify whether 'wcurl' correctly omits --parallel-max-host when using curl >= 7.66.0 && curl < 8.16.0" "${ret}" '--parallel-max-host'
+
+    # Verify that using a curl version that's >= 7.83.0 and < 8.16.0 correctly adds --no-clobber but omits --parallel-max-host.
+    ret=$(CURL_MOCK_VERSION="7.83.0" ${WCURL_CMD} --dry-run --curl-binary "${curlbin}" "${url}" "${url}")
+    assertContains "Verify whether 'wcurl' correctly adds --no-clobber when using curl >= 7.83.0" "${ret}" '--no-clobber'
+    assertNotContains "Verify whether 'wcurl' correctly omits --parallel-max-host when using curl >= 7.83.0 && curl < 8.16.0" "${ret}" '--parallel-max-host'
+
+    # Verify that using a curl version that's >= 8.16.0 correctly adds
+    # --parallel-max-host.
+    ret=$(CURL_MOCK_VERSION="8.16.0" ${WCURL_CMD} --dry-run --curl-binary "${curlbin}" "${url}" "${url}")
+    assertContains "Verify whether 'wcurl' correctly adds --parallel-max-host. when using curl >= 8.16.0" "${ret}" '--parallel-max-host'
+}
+
 ## Ideas for tests:
 ##
 ## - URL with whitespace
