@@ -88,12 +88,12 @@ should be using curl directly if your use case is not covered.
 
 * `--no-decode-filename`
 
-  Don't percent-decode the output filename, even if the percent-encoding in the
+  Do not percent-decode the output filename, even if the percent-encoding in the
   URL was done by wcurl, e.g.: The URL contained whitespace.
 
 * `--dry-run`
 
-  Don't actually execute curl, just print what would be invoked.
+  Do not actually execute curl, just print what would be invoked.
 
 * `-V, --version`
 

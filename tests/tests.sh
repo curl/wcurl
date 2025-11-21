@@ -153,14 +153,14 @@ testUrlDefaultName()
 {
     url='example%20with%20spaces.com'
     ret=$(${WCURL_CMD} ${url} 2>&1)
-    assertContains "Verify whether 'wcurl' chooses the correct default filename when there's no path in the URL" "${ret}" 'index.html'
+    assertContains "Verify whether 'wcurl' chooses the correct default filename when there is no path in the URL" "${ret}" 'index.html'
 }
 
 testUrlDefaultNameTrailingSlash()
 {
     url='example%20with%20spaces.com/'
     ret=$(${WCURL_CMD} ${url} 2>&1)
-    assertContains "Verify whether 'wcurl' chooses the correct default filename when there's no path in the URL and the URl ends with a slash" "${ret}" 'index.html'
+    assertContains "Verify whether 'wcurl' chooses the correct default filename when there is no path in the URL and the URl ends with a slash" "${ret}" 'index.html'
 }
 
 testUrlDecodingWhitespace()
@@ -207,9 +207,9 @@ testUrlDecodingBackslashes()
     assertContains "Verify whether 'wcurl' successfully uses the default filename when the URL ends with a slash" "${ret}" '--output filename%5Cwith%2Fbackslashes%5c%2f'
 }
 
-# Test decoding a bunch of different languages (that don't use the latin
+# Test decoding a bunch of different languages (that do not use the latin
 # alphabet), we could split each language on its own test, but for now it
-# doesn't make a difference.
+# does not make a difference.
 testUrlDecodingNonLatinLanguages()
 {
     # Arabic
@@ -236,7 +236,7 @@ testUrlDecodingNonLatinLanguages()
 ## Ideas for tests:
 ##
 ## - URL with whitespace
-## - Different encodes don't get messed up
+## - Different encodes do not get messed up
 ## - Test '--' (with and without)
 ## - Test filename output (URL ending/not ending with slash)
 ## - Filename with whitespace (decoding)

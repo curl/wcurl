@@ -64,10 +64,10 @@ Options:
                            number appended to the end (curl >= 7.83.0). If this option is provided
                            multiple times, only the last value is considered.
 
-  --no-decode-filename: Don't percent-decode the output filename, even if the percent-encoding in
+  --no-decode-filename: Do not percent-decode the output filename, even if the percent-encoding in
                         the URL was done by wcurl, e.g.: The URL contained whitespace.
 
-  --dry-run: Don't actually execute curl, just print what would be invoked.
+  --dry-run: Do not actually execute curl, just print what would be invoked.
 
   -V, --version: Print version information.
 
@@ -167,7 +167,7 @@ percent_decode()
         # If character is a "%", read the next character as decode_hex1.
         if [ "${decode_out}" = % ] && IFS= read -r decode_hex1; then
             decode_out="${decode_out}${decode_hex1}"
-            # If there's one more character, read it as decode_hex2.
+            # If there is one more character, read it as decode_hex2.
             if IFS= read -r decode_hex2; then
                 decode_out="${decode_out}${decode_hex2}"
                 # Skip decoding if this is a control character (00-1F).
@@ -190,7 +190,7 @@ get_url_filename()
 {
     # Remove protocol and query string if present.
     hostname_and_path="$(printf %s "${1}" | sed -e 's,^[^/]*//,,' -e 's,?.*$,,')"
-    # If what remains contains a slash, there's a path; return it percent-decoded.
+    # If what remains contains a slash, there is a path; return it percent-decoded.
     case "${hostname_and_path}" in
         # sed to remove everything preceding the last '/', e.g.: "example/something" becomes "something"
         */*) percent_decode "$(printf %s "${hostname_and_path}" | sed -e 's,^.*/,,')" ;;
@@ -228,19 +228,19 @@ exec_curl()
         fi
     fi
 
-    # Detecting whether we need --parallel. It's easier to rely on
+    # Detecting whether we need --parallel. It is easier to rely on
     # the shell's argument parsing.
     # shellcheck disable=SC2086
     set -- $URLS
 
-    # If there are less than two URLs, don't set the parallel flag.
+    # If there are less than two URLs, do not set the parallel flag.
     if [ "$#" -lt 2 ]; then
         CURL_PARALLEL=""
     fi
 
     # Start assembling the command.
     #
-    # We use 'set --' here (again) because (a) we don't have arrays on
+    # We use 'set --' here (again) because (a) we do not have arrays on
     # POSIX shell, and (b) we need better control over the way we
     # split arguments.
     #
