@@ -26,7 +26,7 @@
 #
 # SPDX-License-Identifier: curl
 
-ROOTDIR=$(CDPATH=$(cd -- "$(dirname -- "$0")/.." && pwd))
+ROOTDIR=$(CDPATH="" cd -- "$(dirname -- "$0")/.." && pwd)
 readonly ROOTDIR
 export PATH="${ROOTDIR}:${PATH}"
 
