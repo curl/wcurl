@@ -5,9 +5,9 @@
 .SH SYNOPSIS
 \fBwcurl <URL>...\fP
 
-\fBwcurl [\--curl\-options <CURL_OPTIONS>]... [\--dry\-run] [\--no\-decode\-filename] [\-o|\-O|\--output <PATH>] [\--] <URL>...\fP
+\fBwcurl [\--curl\-options <CURL_OPTIONS>]... [\--curl\-binary <CURL_BINARY>] [\--dry\-run] [\--no\-decode\-filename] [\-o|\-O|\--output <PATH>] [\--] <URL>...\fP
 
-\fBwcurl [\--curl\-options=<CURL_OPTIONS>]... [\--dry\-run] [\--no\-decode\-filename] [\--output=<PATH>] [\--] <URL>...\fP
+\fBwcurl [\--curl\-options=<CURL_OPTIONS>]... [\--curl\-binary=<CURL_BINARY>] [\--dry\-run] [\--no\-decode\-filename] [\--output=<PATH>] [\--] <URL>...\fP
 
 \fBwcurl \-V|\--version\fP
 
@@ -61,6 +61,8 @@ if there is none in the URL.
 .IP "--curl-options, --curl-options=\<CURL_OPTIONS\>..."
 Specify extra options to be passed when invoking curl. May be specified more
 than once.
+.IP "--curl-binary, --curl-binary=\<CURL_BINARY\>..."
+Specify the curl binary to be used. By default, "curl" is used.
 .IP "-o, -O, --output, --output=\<PATH\>"
 Use the provided output path instead of getting it from the URL. If multiple
 URLs are provided, resulting files share the same name with a number appended to

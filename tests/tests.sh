@@ -233,6 +233,19 @@ testUrlDecodingNonLatinLanguages()
     assertContains "Verify whether 'wcurl' successfully decodes percent-encoded Korean in URLs" "${ret}" '퍼센트_인코딩'
 }
 
+testCurlBinaryOption()
+{
+    url='example.com'
+    ret=$(${WCURL_CMD} --dry-run "${url}")
+    bin=$(printf "%s" "${ret}" | head -n1)
+    assertEquals "Verify whether 'wcurl' invokes 'curl' when '--curl-binary' is not provided" "${bin}" "curl"
+
+    curlbin="${ROOTDIR}/tests/curl-mock-version"
+    ret=$(${WCURL_CMD} --dry-run --curl-binary "${curlbin}" "${url}")
+    bin=$(printf "%s" "${ret}" | head -n1)
+    assertContains "Verify whether 'wcurl' invokes the binary specified by '--curl-binary'" "${bin}" "${curlbin}"
+}
+
 ## Ideas for tests:
 ##
 ## - URL with whitespace

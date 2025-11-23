@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# wcurl - a simple wrapper around curl to easily download files.
+#
+# This is wcurl's mock curl binary.
+#
+# Copyright (C) Samuel Henrique <samueloph@debian.org>, Sergio Durigan
+# Junior <sergiodj@debian.org> and many contributors, see the AUTHORS
+# file.
+#
+# Permission to use, copy, modify, and distribute this software for any purpose
+# with or without fee is hereby granted, provided that the above copyright
+# notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD PARTY RIGHTS. IN
+# NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+# OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# Except as contained in this notice, the name of a copyright holder shall not be
+# used in advertising or otherwise to promote the sale, use or other dealings in
+# this Software without prior written authorization of the copyright holder.
+#
+# SPDX-License-Identifier: curl
+
+# This is a simple binary to mock curl's version string.  It will
+# print a version specified in the CURL_MOCK_VERSION variable and just
+# exit.  If CURL_MOCK_VERSION is empty, print 0.0.0.
+
+printf "%s\n" "curl ${CURL_MOCK_VERSION:-0.0.0}"
+exit 0

@@ -49,8 +49,8 @@ usage()
 ${PROGRAM_NAME} -- a simple wrapper around curl to easily download files.
 
 Usage: ${PROGRAM_NAME} <URL>...
-       ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>]... [--no-decode-filename] [-o|-O|--output <PATH>] [--dry-run] [--] <URL>...
-       ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>]... [--no-decode-filename] [--output=<PATH>] [--dry-run] [--] <URL>...
+       ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>]... [--curl-binary <CURL_BINARY>] [--no-decode-filename] [-o|-O|--output <PATH>] [--dry-run] [--] <URL>...
+       ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>]... [--curl-binary=<CURL_BINARY>] [--no-decode-filename] [--output=<PATH>] [--dry-run] [--] <URL>...
        ${PROGRAM_NAME} -h|--help
        ${PROGRAM_NAME} -V|--version
 
@@ -58,6 +58,8 @@ Options:
 
   --curl-options <CURL_OPTIONS>: Specify extra options to be passed when invoking curl. May be
                                  specified more than once.
+
+  --curl-binary <CURL_BINARY>: Specify the curl binary to be used. By default, "curl" is used.
 
   -o, -O, --output <PATH>: Use the provided output path instead of getting it from the URL. If
                            multiple URLs are provided, resulting files share the same name with a
@@ -88,6 +90,9 @@ error()
     printf "%s\n" "$*" >&2
     exit 1
 }
+
+# The curl binary to be used.
+CURL_BINARY="curl"
 
 # Extra curl options provided by the user.
 # This is set per-URL for every URL provided.
@@ -130,7 +135,7 @@ sanitize()
         error "You must provide at least one URL to download."
     fi
 
-    readonly CURL_OPTIONS URLS DRY_RUN HAS_USER_SET_OUTPUT
+    readonly CURL_OPTIONS CURL_BINARY URLS DRY_RUN HAS_USER_SET_OUTPUT
 }
 
 # Indicate via exit code whether the string given in the first parameter
@@ -201,7 +206,7 @@ get_url_filename()
 # Execute curl with the list of URLs provided by the user.
 exec_curl()
 {
-    CMD="curl "
+    CMD="${CURL_BINARY} "
 
     # Store version to check if it supports --no-clobber, --parallel and --parallel-max-host.
     curl_version=$($CMD --version | cut -f2 -d' ' | head -n1)
@@ -283,6 +288,16 @@ while [ -n "${1-}" ]; do
         --curl-options)
             shift
             CURL_OPTIONS="${CURL_OPTIONS} ${1}"
+            ;;
+
+        --curl-binary=*)
+            opt=$(printf "%s\n" "${1}" | sed 's/^--curl-binary=//')
+            CURL_BINARY="${opt}"
+            ;;
+
+        --curl-binary)
+            shift
+            CURL_BINARY="${1}"
             ;;
 
         --dry-run)

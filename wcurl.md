@@ -18,9 +18,9 @@ Added-in: n/a
 
 **wcurl \<URL\>...**
 
-**wcurl [--curl-options \<CURL_OPTIONS\>]... [--dry-run] [--no-decode-filename] [-o|-O|--output \<PATH\>] [--] \<URL\>...**
+**wcurl [--curl-options \<CURL_OPTIONS\>]... [--curl-binary \<CURL_BINARY\>] [--dry-run] [--no-decode-filename] [-o|-O|--output \<PATH\>] [--] \<URL\>...**
 
-**wcurl [--curl-options=\<CURL_OPTIONS\>]... [--dry-run] [--no-decode-filename] [--output=\<PATH\>] [--] \<URL\>...**
+**wcurl [--curl-options=\<CURL_OPTIONS\>]... [--curl-binary=\<CURL_BINARY\>] [--dry-run] [--no-decode-filename] [--output=\<PATH\>] [--] \<URL\>...**
 
 **wcurl -V|--version**
 
@@ -77,6 +77,10 @@ By default, **wcurl** does:
 
 Specify extra options to be passed when invoking curl. May be specified more
 than once.
+
+## --curl-binary, --curl-binary=\<CURL_BINARY\>
+
+Specify the curl binary to be used. By default, "curl" is used.
 
 ## -o, -O, --output, --output=\<PATH\>
 
