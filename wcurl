@@ -475,15 +475,15 @@ preprocess_run_options()
                 saved=$(get_saved_call "${run_value}" 2>/dev/null || true)
 
                 if [ -n "${saved}" ]; then
-                    result="${result} --curl-options=\"${saved}\""
+                    result="${result} --curl-options='${saved}'"
                 else
-                    result="${result} --curl-options=\"${run_value}\""
+                    result="${result} --curl-options='${run_value}'"
                 fi
                 shift
                 ;;
 
             *)
-                result="${result} ${1}"
+                result="${result} '${1}'"
                 shift
                 ;;
         esac
@@ -560,6 +560,7 @@ for arg in "$@"; do
                 expanded_opts="${saved}"
                 i="${max_param}"
                 while [ "${i}" -ge 1 ]; do
+                    # shellcheck disable=SC2154
                     eval "param_value=\${param_${i}}"
                     # Use word boundary to match exact parameter number
                     # Match !N followed by non-digit or end of string
@@ -567,6 +568,7 @@ for arg in "$@"; do
                     marker="__WCURL_PARAM_${i}__"
                     expanded_opts=$(printf "%s" "${expanded_opts}" | sed "s|!${i}\([^0-9]\)|${marker}\1|g; s|!${i}$|${marker}|g")
                     # Then replace marker with escaped value (escape single quotes for shell)
+                    # shellcheck disable=SC2154
                     param_escaped=$(printf "%s" "${param_value}" | sed "s/'/'\\\\''/g")
                     expanded_opts=$(printf "%s" "${expanded_opts}" | sed "s|${marker}|'${param_escaped}'|g")
                     i=$((i - 1))
@@ -601,7 +603,8 @@ if [ "${has_run_option}" = "true" ]; then
     # Expand -r/--run-save options to --curl-options (non-parameter expansion case)
     expanded_args=$(preprocess_run_options "$@")
     # Reset positional parameters
-    eval "set -- ${expanded_args}"
+    # shellcheck disable=SC2086
+    eval set -- ${expanded_args}
 fi
 
 # Use "${1-}" in order to avoid errors because of 'set -u'.
