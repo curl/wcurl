@@ -51,6 +51,8 @@ ${PROGRAM_NAME} -- a simple wrapper around curl to easily download files.
 Usage: ${PROGRAM_NAME} <URL>...
        ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>]... [--no-decode-filename] [-o|-O|--output <PATH>] [--dry-run] [--] <URL>...
        ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>]... [--no-decode-filename] [--output=<PATH>] [--dry-run] [--] <URL>...
+       ${PROGRAM_NAME} [--save-call=<NAME>:<CURL_OPTIONS>]... [--list-save] [--rm-save=<NAME>]
+       ${PROGRAM_NAME} [-r|--run-save=<NAME>] <URL>...
        ${PROGRAM_NAME} -h|--help
        ${PROGRAM_NAME} -V|--version
 
@@ -68,6 +70,29 @@ Options:
                         the URL was done by wcurl, e.g.: The URL contained whitespace.
 
   --dry-run: Do not actually execute curl, just print what would be invoked.
+
+  --save-call <NAME>:<CURL_OPTIONS>: Save a curl call to $HOME/.wcurlrc without having to remember
+                                     option combinations, using a property value set; where the value
+                                     is the set of options to be reused, and the property is the name
+                                     to invoke the saved option combo. Name must contain only alphanumeric
+                                     characters, dashes, and underscores. Supports parameter expansion
+                                     using !1, !2, !3, etc. as placeholders that will be replaced with
+                                     actual values when invoked with -r or --run-save. When using
+                                     parameter expansion markers, enclose the curl options in single
+                                     quotes to prevent shell interpretation.
+
+  -r, --run-save <NAME>: Run a saved curl call from $HOME/.wcurlrc. For saved calls without
+                         parameter expansion, the saved options are applied to the URLs provided.
+                         For saved calls with parameter expansion markers (!1, !2, !3, etc.), you
+                         must provide the exact number of parameters required by the highest marker
+                         number. When using parameter expansion, only one --run-save call can be used
+                         per command, and the command executes curl directly with the expanded options.
+                         Parameters are provided as separate arguments following the --run-save option.
+
+  --list-save: Output the name and the option combination for each name from $HOME/.wcurlrc
+               that have been saved for later reuse.
+
+  --rm-save <NAME>: Remove a saved curl call from $HOME/.wcurlrc.
 
   -V, --version: Print version information.
 
@@ -123,9 +148,175 @@ readonly UNSAFE_PERCENT_ENCODE="%2F %5C"
 # Whether to invoke curl or not.
 DRY_RUN="false"
 
+# Save-call name and options for --save-call
+SAVE_CALL_NAME=""
+SAVE_CALL_OPTIONS=""
+HAS_SAVE_CALLS="false"
+
+# Save a curl call to .wcurlrc
+save_call()
+{
+    if [ -z "${SAVE_CALL_NAME}" ]; then
+        error "No save-call name provided."
+    fi
+
+    # Validate name: only allow alphanumeric, dash, underscore
+    case "${SAVE_CALL_NAME}" in
+        *[!a-zA-Z0-9_-]*)
+            error "Invalid characters in save-call name. Use only letters, numbers, dash, and underscore."
+            ;;
+    esac
+
+    if [ -z "${SAVE_CALL_OPTIONS}" ]; then
+        error "No options provided for save-call."
+    fi
+
+    wcurlrc="${HOME}/.wcurlrc"
+
+    # Create .wcurlrc if it doesn't exist with secure permissions
+    if [ ! -f "${wcurlrc}" ]; then
+        touch "${wcurlrc}"
+        chmod 600 "${wcurlrc}"
+    else
+        # Fix permissions on existing file if they're too permissive
+        current_perms=$(stat -c '%a' "${wcurlrc}" 2>/dev/null || stat -f '%Lp' "${wcurlrc}" 2>/dev/null || echo "600")
+        if [ "${current_perms}" != "600" ]; then
+            chmod 600 "${wcurlrc}"
+        fi
+    fi
+
+    # Escape the name for use in grep pattern (escape regex metacharacters)
+    escaped_name=$(printf "%s" "${SAVE_CALL_NAME}" | sed 's/[.\[^$*]/\\&/g')
+
+    # Check if name already exists and update it, otherwise append
+    if grep -q "^${escaped_name}=" "${wcurlrc}" 2>/dev/null; then
+        # Update existing entry using a secure temp file
+        temp_file=$(mktemp "${wcurlrc}.XXXXXX") || error "Failed to create temp file"
+        chmod 600 "${temp_file}"
+        grep -v "^${escaped_name}=" "${wcurlrc}" > "${temp_file}" 2>/dev/null || true
+        printf "%s=%s\n" "${SAVE_CALL_NAME}" "${SAVE_CALL_OPTIONS}" >> "${temp_file}"
+        mv "${temp_file}" "${wcurlrc}"
+    else
+        # Append new entry
+        printf "%s=%s\n" "${SAVE_CALL_NAME}" "${SAVE_CALL_OPTIONS}" >> "${wcurlrc}"
+    fi
+
+    printf "Saved call '%s' with options: %s\n" "${SAVE_CALL_NAME}" "${SAVE_CALL_OPTIONS}"
+}
+
+# Load saved call from .wcurlrc
+get_saved_call()
+{
+    name="${1}"
+    wcurlrc="${HOME}/.wcurlrc"
+
+    if [ ! -f "${wcurlrc}" ]; then
+        return 1
+    fi
+
+    # Look for the saved call
+    saved_options=$(grep "^${name}=" "${wcurlrc}" 2>/dev/null | sed "s/^${name}=//")
+
+    if [ -n "${saved_options}" ]; then
+        printf "%s" "${saved_options}"
+        return 0
+    fi
+
+    return 1
+}
+
+# List all saved calls from .wcurlrc
+list_saved_calls()
+{
+    wcurlrc="${HOME}/.wcurlrc"
+
+    if [ ! -f "${wcurlrc}" ]; then
+        printf "No saved calls found. File does not exist: %s\n" "${wcurlrc}"
+        exit 0
+    fi
+
+    if [ ! -s "${wcurlrc}" ]; then
+        printf "No saved calls found in: %s\n" "${wcurlrc}"
+        exit 0
+    fi
+
+    printf "Saved calls in %s:\n\n" "${wcurlrc}"
+
+    # Read and display each saved call
+    while IFS= read -r line; do
+        # Skip empty lines and comments
+        case "${line}" in
+            ''|'#'*) continue ;;
+        esac
+
+        # Validate that the line contains an equals sign and has a valid name
+        case "${line}" in
+            *=*)
+                # Extract name and check if it's valid (starts with alphanumeric)
+                name=$(printf "%s" "${line}" | cut -d= -f1)
+                case "${name}" in
+                    [a-zA-Z0-9]*)
+                        # Valid entry
+                        options=$(printf "%s" "${line}" | cut -d= -f2-)
+                        printf "  %s:\n    %s\n\n" "${name}" "${options}"
+                        ;;
+                    *)
+                        # Invalid name (starts with space, quote, etc.), skip
+                        continue
+                        ;;
+                esac
+                ;;
+            *)
+                # No equals sign, skip
+                continue
+                ;;
+        esac
+    done < "${wcurlrc}"
+
+    exit 0
+}
+
+# Remove a saved call from .wcurlrc
+remove_call()
+{
+    if [ -z "${1}" ]; then
+        error "No call name provided to remove."
+    fi
+
+    name="${1}"
+    wcurlrc="${HOME}/.wcurlrc"
+
+    if [ ! -f "${wcurlrc}" ]; then
+        error "No saved calls found. File does not exist: ${wcurlrc}"
+    fi
+
+    # Escape the name for use in grep pattern
+    escaped_name=$(printf "%s" "${name}" | sed 's/[.\[^$*]/\\&/g')
+
+    # Check if the call exists
+    if ! grep -q "^${escaped_name}=" "${wcurlrc}" 2>/dev/null; then
+        error "Saved call '${name}' not found in ${wcurlrc}"
+    fi
+
+    # Remove the entry using a secure temp file
+    temp_file=$(mktemp "${wcurlrc}.XXXXXX") || error "Failed to create temp file"
+    chmod 600 "${temp_file}"
+    grep -v "^${escaped_name}=" "${wcurlrc}" > "${temp_file}" 2>/dev/null || true
+    mv "${temp_file}" "${wcurlrc}"
+
+    printf "Removed saved call: %s\n" "${name}"
+    exit 0
+}
+
 # Sanitize parameters.
 sanitize()
 {
+    # If we only had save-calls and no URLs, exit successfully
+    if [ "${HAS_SAVE_CALLS}" = "true" ] && [ -z "${URLS}" ]; then
+        printf "Saved to: %s\n" "${HOME}/.wcurlrc"
+        exit 0
+    fi
+
     if [ -z "${URLS}" ]; then
         error "You must provide at least one URL to download."
     fi
@@ -272,6 +463,147 @@ exec_curl()
 # Default to decoding the output filename
 DECODE_FILENAME="true"
 
+# Preprocess arguments to expand -r/--run-save options to --curl-options (non-parameter expansion case only)
+preprocess_run_options()
+{
+    result=""
+
+    while [ "$#" -gt 0 ]; do
+        case "${1}" in
+            -r=*|--run-save=*)
+                run_value=$(printf "%s\n" "${1}" | sed 's/^\(-r\|--run-save\)=//')
+                saved=$(get_saved_call "${run_value}" 2>/dev/null || true)
+
+                if [ -n "${saved}" ]; then
+                    result="${result} --curl-options=\"${saved}\""
+                else
+                    result="${result} --curl-options=\"${run_value}\""
+                fi
+                shift
+                ;;
+
+            *)
+                result="${result} ${1}"
+                shift
+                ;;
+        esac
+    done
+
+    printf "%s" "${result}"
+}
+
+# Preprocess arguments if -r or --run-save is present
+# First check if -r/--run-save uses parameter expansion and handle it directly
+for arg in "$@"; do
+    case "${arg}" in
+        -r=*|--run-save=*)
+            run_value=$(printf "%s\n" "${arg}" | sed 's/^\(-r\|--run-save\)=//')
+            saved=$(get_saved_call "${run_value}" 2>/dev/null || true)
+
+            if [ -n "${saved}" ] && printf "%s" "${saved}" | grep -q '!'; then
+                # This uses parameter expansion - check for --dry-run first
+                has_dry_run="false"
+                for check_arg in "$@"; do
+                    case "${check_arg}" in
+                        --dry-run)
+                            has_dry_run="true"
+                            break
+                            ;;
+                    esac
+                done
+
+                # Remove arguments up to and including --run-save=name
+                while [ "$#" -gt 0 ]; do
+                    current_arg="${1}"
+                    shift
+                    case "${current_arg}" in
+                        -r=*|--run-save=*)
+                            # Found and removed the --run-save arg, now collect parameters
+                            break
+                            ;;
+                    esac
+                done
+
+                # Find the highest parameter number
+                max_param=0
+                i=1
+                while [ "${i}" -le 99 ]; do
+                    if printf "%s" "${saved}" | grep -q "!${i}"; then
+                        max_param="${i}"
+                    fi
+                    i=$((i + 1))
+                done
+
+                # Collect parameters (skip --dry-run if present, it was already removed above)
+                param_count=0
+                while [ "${param_count}" -lt "${max_param}" ] && [ "$#" -gt 0 ]; do
+                    case "${1}" in
+                        --*)
+                            break
+                            ;;
+                        *)
+                            param_count=$((param_count + 1))
+                            eval "param_${param_count}='${1}'"
+                            shift
+                            ;;
+                    esac
+                done
+
+                # Validate
+                if [ "${param_count}" -lt "${max_param}" ]; then
+                    error "Not enough parameters for --run=${run_value}. Expected at least ${max_param} parameters, got ${param_count}."
+                fi
+
+                # Perform substitution - build curl command array safely
+                # We need to parse the saved options and substitute parameters
+                # Process in REVERSE order (largest numbers first) to avoid !1 matching !10, !11, etc.
+                expanded_opts="${saved}"
+                i="${max_param}"
+                while [ "${i}" -ge 1 ]; do
+                    eval "param_value=\${param_${i}}"
+                    # Use word boundary to match exact parameter number
+                    # Match !N followed by non-digit or end of string
+                    # First replace with unique marker
+                    marker="__WCURL_PARAM_${i}__"
+                    expanded_opts=$(printf "%s" "${expanded_opts}" | sed "s|!${i}\([^0-9]\)|${marker}\1|g; s|!${i}$|${marker}|g")
+                    # Then replace marker with escaped value (escape single quotes for shell)
+                    param_escaped=$(printf "%s" "${param_value}" | sed "s/'/'\\\\''/g")
+                    expanded_opts=$(printf "%s" "${expanded_opts}" | sed "s|${marker}|'${param_escaped}'|g")
+                    i=$((i - 1))
+                done
+
+                # Execute curl directly - use sh -c with proper quoting to avoid eval
+                # If --dry-run was detected, just show the command instead
+                if [ "${has_dry_run}" = "true" ]; then
+                    printf "curl %s\n" "${expanded_opts}"
+                    exit 0
+                else
+                    sh -c "curl ${expanded_opts}"
+                    exit $?
+                fi
+            fi
+            ;;
+    esac
+done
+
+# If we get here, no parameter expansion was found - proceed with normal preprocessing
+has_run_option="false"
+for arg in "$@"; do
+    case "${arg}" in
+        -r=*|--run-save=*)
+            has_run_option="true"
+            break
+            ;;
+    esac
+done
+
+if [ "${has_run_option}" = "true" ]; then
+    # Expand -r/--run-save options to --curl-options (non-parameter expansion case)
+    expanded_args=$(preprocess_run_options "$@")
+    # Reset positional parameters
+    eval "set -- ${expanded_args}"
+fi
+
 # Use "${1-}" in order to avoid errors because of 'set -u'.
 while [ -n "${1-}" ]; do
     case "${1}" in
@@ -309,6 +641,62 @@ while [ -n "${1-}" ]; do
 
         --no-decode-filename)
             DECODE_FILENAME="false"
+            ;;
+
+        --save-call=*)
+            opt=$(printf "%s\n" "${1}" | sed 's/^--save-call=//')
+
+            # Check if the format contains a colon
+            case "${opt}" in
+                *:*)
+                    SAVE_CALL_NAME=$(printf "%s\n" "${opt}" | cut -d: -f1)
+                    SAVE_CALL_OPTIONS=$(printf "%s\n" "${opt}" | cut -d: -f2-)
+
+                    # Check if there are unquoted spaces in options (indicates missing quotes)
+                    # This happens when shell splits the argument
+                    if [ -z "${SAVE_CALL_OPTIONS}" ]; then
+                        error "--save-call options cannot be empty. Use format: --save-call=NAME:\"CURL_OPTIONS\""
+                    fi
+                    ;;
+                *)
+                    error "--save-call requires a colon separator. Use format: --save-call=NAME:\"CURL_OPTIONS\""
+                    ;;
+            esac
+
+            HAS_SAVE_CALLS="true"
+            save_call
+            # Reset for next potential save-call
+            SAVE_CALL_NAME=""
+            SAVE_CALL_OPTIONS=""
+            ;;
+
+        --save-call)
+            error "--save-call requires a value in the format: --save-call=NAME:\"CURL_OPTIONS\""
+            ;;
+
+        --list-save)
+            list_saved_calls
+            ;;
+
+        --rm-save=*)
+            opt=$(printf "%s\n" "${1}" | sed 's/^--rm-save=//')
+            remove_call "${opt}"
+            ;;
+
+        --rm-save)
+            error "--rm-save requires a value. Use format: --rm-save=NAME"
+            ;;
+
+        # Catch unquoted save-call attempts that got split by the shell
+        -R | -z | -L)
+            # Check if the previous argument pattern suggests a malformed --save-call
+            # This is a heuristic - if we see curl options appearing as separate arguments
+            # early in parsing before any URLs, it might be a quote issue
+            if [ -z "${URLS}" ] && [ "${HAS_SAVE_CALLS}" = "true" ]; then
+                error "Detected unquoted curl options. When using --save-call with multiple options, quote them: --save-call=NAME:\"-R -z -L\""
+            fi
+            # Otherwise treat as unknown option
+            error "Unknown option: '$1'."
             ;;
 
         -h | --help)

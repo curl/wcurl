@@ -22,6 +22,10 @@ Added-in: n/a
 
 **wcurl [--curl-options=\<CURL_OPTIONS\>]... [--dry-run] [--no-decode-filename] [--output=\<PATH\>] [--] \<URL\>...**
 
+**wcurl [--save-call=\<NAME\>:\<CURL_OPTIONS\>]... [--list-save] [--rm-save=\<NAME\>]**
+
+**wcurl [-r|--run-save=\<NAME\>] \<URL\>...**
+
 **wcurl -V|--version**
 
 **wcurl -h|--help**
@@ -94,6 +98,38 @@ URL was done by **wcurl**, e.g.: The URL contained whitespace.
 
 Do not actually execute curl, just print what would be invoked.
 
+## --save-call=\<NAME\>:\<CURL_OPTIONS\>...
+
+Save a curl call to `$HOME/.wcurlrc` without having to remember option
+combinations, using a property value set; where the value is the set of options
+to be reused, and the property is the name to invoke the saved option combo.
+The name must contain only alphanumeric characters, dashes, and underscores for
+security reasons. Supports parameter expansion using `!1`, `!2`, `!3`, etc. as
+placeholders that will be replaced with actual values when invoked with **-r**
+or **--run-save**. When using parameter expansion markers, enclose the curl
+options in single quotes to prevent shell interpretation. The `.wcurlrc` file is
+created with permissions 600 (owner read/write only) for security.
+
+
+## -r, --run-save, --run-save=\<NAME\>
+
+Run a saved curl call from `$HOME/.wcurlrc`. For saved calls without parameter
+expansion, the saved options are applied to the URLs provided. For saved calls
+with parameter expansion markers (`!1`, `!2`, `!3`, etc.), you must provide the
+exact number of parameters required by the highest marker number. When using
+parameter expansion, only one **--run-save** call can be used per command, and
+the command executes curl directly with the expanded options. Parameters are
+provided as separate arguments following the **--run-save** option.
+
+## --list-save
+
+Output the name and the option combination for each name from `$HOME/.wcurlrc`
+that have been saved for later reuse.
+
+## --rm-save=\<NAME\>
+
+Remove a saved curl call.
+
 ## -V, \--version
 
 Print version information.
@@ -134,6 +170,40 @@ Download a file passing the **--progress-bar** and **--http2** flags to curl:
 Download multiple files without a limit of concurrent connections per host (the default limit is 5):
 
 **wcurl --curl-options="--parallel-max-host 0" example.com/filename1.txt example.com/filename2.txt**
+
+Save simple curl option combinations to be reused later:
+
+**wcurl --save-call=quiet:"--silent --show-error" --save-call=progress:"--progress-bar -L -v"**
+
+Save a curl option combination with parameter expansion (use !1, !2, !3 for placeholders, and enclose in single quotes):
+
+**wcurl --save-call=dumpVerb:'-I !1 -o !2 --next -v !3 -o !4'**
+
+**wcurl --save-call=getFile:'-o !1 !2'**
+
+List all saved curl option combinations:
+
+**wcurl --list-save**
+
+Remove a saved curl option combination:
+
+**wcurl --rm-save=quiet**
+
+Use a saved curl option combination without parameter expansion:
+
+**wcurl --run-save="quiet" example.com/file1.txt**
+
+**wcurl -r="progress" example.com/file1.txt example.com/file2.txt**
+
+Use a saved curl option combination with parameter expansion. The number of parameters after the name must match the highest marker (!1, !2, etc.):
+
+**wcurl --run-save="dumpVerb" example.com dump.txt example.com/file.txt file.txt**
+
+This expands to: `curl -I example.com -o dump.txt --next -v example.com/file.txt -o file.txt`
+
+**wcurl -r="getFile" output.html example.com/index.html**
+
+This expands to: `curl -o output.html example.com/index.html`
 
 # AUTHORS
 

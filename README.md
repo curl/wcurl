@@ -44,6 +44,8 @@ sudo mandb
 wcurl <URL>...
 wcurl [--curl-options <CURL_OPTIONS>]... [--no-decode-filename] [-o|-O|--output <PATH>] [--dry-run] [--] <URL>...
 wcurl [--curl-options=<CURL_OPTIONS>]... [--no-decode-filename] [--output=<PATH>] [--dry-run] [--] <URL>...
+wcurl [--save-call=<NAME>:<CURL_OPTIONS>]... [--list-save] [--rm-save=<NAME>]
+wcurl [-r|--run-save=<NAME>] <URL>...
 wcurl -V|--version
 wcurl -h|--help
 ```
@@ -95,6 +97,22 @@ should be using curl directly if your use case is not covered.
 
   Do not actually execute curl, just print what would be invoked.
 
+* `--save-call=<NAME>:<CURL_OPTIONS>`
+
+  Save a curl call to `$HOME/.wcurlrc` for reuse. Name must contain only alphanumeric characters, dashes, and underscores. Supports parameter expansion using `!1`, `!2`, `!3` as placeholders.
+
+* `-r, --run-save=<NAME>`
+
+  Run a saved curl call from `$HOME/.wcurlrc`. For calls with parameter expansion, provide parameters as separate arguments after the name.
+
+* `--list-save`
+
+  List all saved curl calls.
+
+* `--rm-save=<NAME>`
+
+  Remove a saved curl call.
+
 * `-V, --version`
 
   Print version information.
@@ -144,6 +162,25 @@ then performs the parsing. May be specified more than once.
 
   ```sh
   wcurl --curl-options="--parallel-max-host 0" example.com/filename1.txt example.com/filename2.txt
+  ```
+
+* Save curl options for reuse:
+
+  ```sh
+  wcurl --save-call=quiet:"--silent --show-error"
+  ```
+
+* Use a saved call:
+
+  ```sh
+  wcurl --run-save=quiet example.com/file.txt
+  ```
+
+* Save with parameter expansion:
+
+  ```sh
+  wcurl --save-call=getFile:'-o !1 !2'
+  wcurl -r=getFile output.txt example.com/file.txt
   ```
 
 # Running the testsuite

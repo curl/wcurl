@@ -233,6 +233,262 @@ testUrlDecodingNonLatinLanguages()
     assertContains "Verify whether 'wcurl' successfully decodes percent-encoded Korean in URLs" "${ret}" '퍼센트_인코딩'
 }
 
+# Tests for --save-call, --run-save, --list-save, --rm-save
+testSaveCallBasic()
+{
+    # Create a temporary .wcurlrc for testing
+    TEST_WCURLRC="${SHUNIT_TMPDIR}/.wcurlrc"
+    export HOME="${SHUNIT_TMPDIR}"
+    
+    # Clean up any existing test file
+    rm -f "${TEST_WCURLRC}"
+    
+    # Test saving a simple call
+    wcurl --save-call=testcall:"--silent --show-error" >/dev/null 2>&1
+    assertTrue "Verify whether '--save-call' exits successfully" "$?"
+    
+    # Verify the file was created
+    assertTrue "Verify whether .wcurlrc file was created" "[ -f ${TEST_WCURLRC} ]"
+    
+    # Verify the content
+    ret=$(cat "${TEST_WCURLRC}")
+    assertContains "Verify whether '--save-call' saves correctly" "${ret}" "testcall=--silent --show-error"
+    
+    # Clean up
+    rm -f "${TEST_WCURLRC}"
+}
+
+testSaveCallMultiple()
+{
+    TEST_WCURLRC="${SHUNIT_TMPDIR}/.wcurlrc"
+    export HOME="${SHUNIT_TMPDIR}"
+    rm -f "${TEST_WCURLRC}"
+    
+    # Save multiple calls
+    wcurl --save-call=call1:"--silent" --save-call=call2:"--verbose" >/dev/null 2>&1
+    assertTrue "Verify whether multiple '--save-call' options work" "$?"
+    
+    ret=$(cat "${TEST_WCURLRC}")
+    assertContains "Verify whether first call is saved" "${ret}" "call1=--silent"
+    assertContains "Verify whether second call is saved" "${ret}" "call2=--verbose"
+    
+    rm -f "${TEST_WCURLRC}"
+}
+
+testSaveCallWithParameterExpansion()
+{
+    TEST_WCURLRC="${SHUNIT_TMPDIR}/.wcurlrc"
+    export HOME="${SHUNIT_TMPDIR}"
+    rm -f "${TEST_WCURLRC}"
+    
+    # Save a call with parameter expansion
+    wcurl --save-call=paramtest:'-o !1 !2' >/dev/null 2>&1
+    assertTrue "Verify whether '--save-call' with parameter expansion exits successfully" "$?"
+    
+    ret=$(cat "${TEST_WCURLRC}")
+    assertContains "Verify whether parameter expansion is saved correctly" "${ret}" "paramtest=-o !1 !2"
+    
+    rm -f "${TEST_WCURLRC}"
+}
+
+testSaveCallUpdate()
+{
+    TEST_WCURLRC="${SHUNIT_TMPDIR}/.wcurlrc"
+    export HOME="${SHUNIT_TMPDIR}"
+    rm -f "${TEST_WCURLRC}"
+    
+    # Save initial call
+    wcurl --save-call=testcall:"--silent" >/dev/null 2>&1
+    
+    # Update the same call
+    wcurl --save-call=testcall:"--verbose" >/dev/null 2>&1
+    assertTrue "Verify whether '--save-call' can update existing calls" "$?"
+    
+    ret=$(cat "${TEST_WCURLRC}")
+    assertContains "Verify whether updated call has new value" "${ret}" "testcall=--verbose"
+    assertNotContains "Verify whether old value is removed" "${ret}" "testcall=--silent"
+    
+    # Verify only one entry exists
+    count=$(grep -c "testcall=" "${TEST_WCURLRC}")
+    assertEquals "Verify whether only one entry exists after update" "1" "${count}"
+    
+    rm -f "${TEST_WCURLRC}"
+}
+
+testSaveCallMissingColon()
+{
+    TEST_WCURLRC="${SHUNIT_TMPDIR}/.wcurlrc"
+    export HOME="${SHUNIT_TMPDIR}"
+    rm -f "${TEST_WCURLRC}"
+    
+    # Try to save without colon separator
+    ret=$(wcurl --save-call=testcall 2>&1)
+    assertFalse "Verify whether '--save-call' without colon fails" "$?"
+    assertContains "Verify whether error message is displayed" "${ret}" "requires a colon separator"
+    
+    rm -f "${TEST_WCURLRC}"
+}
+
+testListSaveEmpty()
+{
+    TEST_WCURLRC="${SHUNIT_TMPDIR}/.wcurlrc"
+    export HOME="${SHUNIT_TMPDIR}"
+    rm -f "${TEST_WCURLRC}"
+    
+    # List when no file exists
+    ret=$(wcurl --list-save 2>&1)
+    assertTrue "Verify whether '--list-save' exits successfully when file doesn't exist" "$?"
+    assertContains "Verify whether appropriate message is shown" "${ret}" "No saved calls found"
+    
+    rm -f "${TEST_WCURLRC}"
+}
+
+testListSaveWithCalls()
+{
+    TEST_WCURLRC="${SHUNIT_TMPDIR}/.wcurlrc"
+    export HOME="${SHUNIT_TMPDIR}"
+    rm -f "${TEST_WCURLRC}"
+    
+    # Save some calls
+    wcurl --save-call=quiet:"--silent --show-error" >/dev/null 2>&1
+    wcurl --save-call=verbose:"--verbose" >/dev/null 2>&1
+    
+    # List them
+    ret=$(wcurl --list-save 2>&1)
+    assertTrue "Verify whether '--list-save' exits successfully" "$?"
+    assertContains "Verify whether first saved call is listed" "${ret}" "quiet:"
+    assertContains "Verify whether second saved call is listed" "${ret}" "verbose:"
+    assertContains "Verify whether first call options are shown" "${ret}" "--silent --show-error"
+    assertContains "Verify whether second call options are shown" "${ret}" "--verbose"
+    
+    rm -f "${TEST_WCURLRC}"
+}
+
+testRmSaveBasic()
+{
+    TEST_WCURLRC="${SHUNIT_TMPDIR}/.wcurlrc"
+    export HOME="${SHUNIT_TMPDIR}"
+    rm -f "${TEST_WCURLRC}"
+    
+    # Save a call
+    wcurl --save-call=testcall:"--silent" >/dev/null 2>&1
+    
+    # Remove it
+    ret=$(wcurl --rm-save=testcall 2>&1)
+    assertTrue "Verify whether '--rm-save' exits successfully" "$?"
+    assertContains "Verify whether removal message is displayed" "${ret}" "Removed saved call: testcall"
+    
+    # Verify it's gone
+    if [ -f "${TEST_WCURLRC}" ]; then
+        content=$(cat "${TEST_WCURLRC}")
+        assertNotContains "Verify whether call is removed from file" "${content}" "testcall="
+    fi
+    
+    rm -f "${TEST_WCURLRC}"
+}
+
+testRmSaveNonExistent()
+{
+    TEST_WCURLRC="${SHUNIT_TMPDIR}/.wcurlrc"
+    export HOME="${SHUNIT_TMPDIR}"
+    rm -f "${TEST_WCURLRC}"
+    
+    # Save a call
+    wcurl --save-call=testcall:"--silent" >/dev/null 2>&1
+    
+    # Try to remove non-existent call
+    ret=$(wcurl --rm-save=nonexistent 2>&1)
+    assertFalse "Verify whether '--rm-save' fails for non-existent call" "$?"
+    assertContains "Verify whether error message is displayed" "${ret}" "not found"
+    
+    rm -f "${TEST_WCURLRC}"
+}
+
+testRunSaveBasic()
+{
+    TEST_WCURLRC="${SHUNIT_TMPDIR}/.wcurlrc"
+    export HOME="${SHUNIT_TMPDIR}"
+    rm -f "${TEST_WCURLRC}"
+    
+    # Save a call without parameter expansion
+    wcurl --save-call=testrun:"--silent --show-error" >/dev/null 2>&1
+    
+    # Run it with dry-run
+    ret=$(wcurl --dry-run --run-save=testrun example.com 2>&1)
+    assertTrue "Verify whether '--run-save' exits successfully" "$?"
+    assertContains "Verify whether saved options are applied" "${ret}" "--silent"
+    assertContains "Verify whether saved options are applied" "${ret}" "--show-error"
+    assertContains "Verify whether URL is included" "${ret}" "example.com"
+    
+    rm -f "${TEST_WCURLRC}"
+}
+
+testRunSaveShortOption()
+{
+    TEST_WCURLRC="${SHUNIT_TMPDIR}/.wcurlrc"
+    export HOME="${SHUNIT_TMPDIR}"
+    rm -f "${TEST_WCURLRC}"
+    
+    # Save a call
+    wcurl --save-call=testrun:"--verbose" >/dev/null 2>&1
+    
+    # Run it with short option -r
+    ret=$(wcurl --dry-run -r=testrun example.com 2>&1)
+    assertTrue "Verify whether '-r' short option works" "$?"
+    assertContains "Verify whether saved options are applied with -r" "${ret}" "--verbose"
+    
+    rm -f "${TEST_WCURLRC}"
+}
+
+testRunSaveNonExistent()
+{
+    TEST_WCURLRC="${SHUNIT_TMPDIR}/.wcurlrc"
+    export HOME="${SHUNIT_TMPDIR}"
+    rm -f "${TEST_WCURLRC}"
+    
+    # Try to run non-existent call (will treat as literal curl options)
+    ret=$(wcurl --dry-run --run-save=nonexistent example.com 2>&1)
+    assertTrue "Verify whether '--run-save' with non-existent name still works (treats as literal)" "$?"
+    assertContains "Verify whether the literal value is used" "${ret}" "nonexistent"
+    
+    rm -f "${TEST_WCURLRC}"
+}
+
+testRunSaveParameterExpansion()
+{
+    TEST_WCURLRC="${SHUNIT_TMPDIR}/.wcurlrc"
+    export HOME="${SHUNIT_TMPDIR}"
+    rm -f "${TEST_WCURLRC}"
+    
+    # Save a call with parameter expansion
+    wcurl --save-call=paramrun:'-o !1 !2' >/dev/null 2>&1
+    
+    # Run it with parameters (this executes curl directly, not dry-run)
+    # We can't easily test this without actually running curl, so we'll skip the execution test
+    # Just verify the save worked
+    ret=$(cat "${TEST_WCURLRC}")
+    assertContains "Verify parameter expansion call is saved" "${ret}" "paramrun=-o !1 !2"
+    
+    rm -f "${TEST_WCURLRC}"
+}
+
+testRunSaveParameterExpansionNotEnoughParams()
+{
+    TEST_WCURLRC="${SHUNIT_TMPDIR}/.wcurlrc"
+    export HOME="${SHUNIT_TMPDIR}"
+    rm -f "${TEST_WCURLRC}"
+    
+    # Save a call requiring 2 parameters
+    wcurl --save-call=needstwo:'-o !1 !2' >/dev/null 2>&1
+    
+    # Try to run with only 1 parameter
+    ret=$(wcurl --run-save=needstwo oneparam 2>&1)
+    assertFalse "Verify whether '--run-save' fails when not enough parameters provided" "$?"
+    assertContains "Verify whether error message about parameters is shown" "${ret}" "Not enough parameters"
+    
+    rm -f "${TEST_WCURLRC}"
+}
+
 ## Ideas for tests:
 ##
 ## - URL with whitespace
