@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
@@ -111,7 +111,7 @@ jobs:
           apt-get -o Dpkg::Use-Pty=0 install -y --no-install-suggests --no-install-recommends curl shunit2
 
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
@@ -134,7 +134,7 @@ jobs:
           cp shunit2 /usr/local/bin/shunit2
 
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
@@ -149,7 +149,7 @@ jobs:
         run: HOMEBREW_NO_AUTO_UPDATE=1 brew install shunit2
 
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
