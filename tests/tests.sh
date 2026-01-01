@@ -207,6 +207,27 @@ testUrlDecodingBackslashes()
     assertContains "Verify whether 'wcurl' successfully uses the default filename when the URL ends with a slash" "${ret}" '--output filename%5Cwith%2Fbackslashes%5c%2f'
 }
 
+testUrlDecodingColon()
+{
+    url='example.com/filename%3Awith%3Acolons%3a'
+    ret=$(${WCURL_CMD} ${url} 2>&1 | tr '\n' ' ')
+    assertContains "Verify whether 'wcurl' successfully uses the default filename when the URL ends with a slash" "${ret}" '--output filename%3Awith%3Acolons%3a'
+}
+
+testUrlEncodeColon()
+{
+    url='example.com/filename:with:colons:'
+    ret=$(${WCURL_CMD} ${url} 2>&1 | tr '\n' ' ')
+    assertContains "Verify whether 'wcurl' successfully uses the default filename when the URL ends with a slash" "${ret}" '--output filename%3Awith%3Acolons%3A'
+}
+
+testUrlAllowColonWhenOutput()
+{
+    url='example.com/filename:with:colons:'
+    ret=$(${WCURL_CMD} ${url} -o "i:want:colons:here" 2>&1 | tr '\n' ' ')
+    assertContains "Verify whether 'wcurl' successfully uses the default filename when the URL ends with a slash" "${ret}" '--output i:want:colons:here'
+}
+
 # Test decoding a bunch of different languages (that do not use the latin
 # alphabet), we could split each language on its own test, but for now it
 # does not make a difference.

@@ -118,7 +118,8 @@ readonly PER_URL_PARAMETERS="\
 # characters.
 # 2F = /
 # 5C = \
-readonly UNSAFE_PERCENT_ENCODE="%2F %5C"
+# 3A = :
+readonly UNSAFE_PERCENT_ENCODE="%2F %5C %3A"
 
 # Whether to invoke curl or not.
 DRY_RUN="false"
@@ -193,7 +194,8 @@ get_url_filename()
     # If what remains contains a slash, there is a path; return it percent-decoded.
     case "${hostname_and_path}" in
         # sed to remove everything preceding the last '/', e.g.: "example/something" becomes "something"
-        */*) percent_decode "$(printf %s "${hostname_and_path}" | sed -e 's,^.*/,,')" ;;
+        # sed to also replace ':' with the percent_encoded %3A
+        */*) percent_decode "$(printf %s "${hostname_and_path}" | sed -e 's,^.*/,,' -e 's,:,%3A,g')" ;;
     esac
     # No slash means there was just a hostname and no path; return empty string.
 }
