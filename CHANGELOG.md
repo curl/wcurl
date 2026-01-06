@@ -8,6 +8,13 @@ SPDX-License-Identifier: curl
 
 # Changelog
 
+## [v2026.01.05]
+ * Do not percent-decode colons ":", and percent-encode them when found.
+ * Fix ROOTDIR definition in tests. This could lead to the wrong wcurl script
+   being invoked for the tests.
+ * Fix curl version comparison, supporting the future curl versions 9.0+.
+ * Documentation updates.
+
 ## [v2025.11.09]
  * Really fix CVE-2025-11563: The patch from v2025.11.04 did not fix the CVE and
    the unit test verifying it was broken.
