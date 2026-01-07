@@ -10,6 +10,7 @@ SPDX-License-Identifier: curl
 
 ## [v2026.01.05]
  * Do not percent-decode colons ":", and percent-encode them when found.
+   Thanks to Stanislav Fort.
  * Fix ROOTDIR definition in tests. This could lead to the wrong wcurl script
    being invoked for the tests.
  * Fix curl version comparison, supporting the future curl versions 9.0+.
