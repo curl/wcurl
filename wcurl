@@ -49,8 +49,8 @@ usage()
 ${PROGRAM_NAME} -- a simple wrapper around curl to easily download files.
 
 Usage: ${PROGRAM_NAME} <URL>...
-       ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>]... [--no-decode-filename] [-o|-O|--output <PATH>] [--dry-run] [--] <URL>...
-       ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>]... [--no-decode-filename] [--output=<PATH>] [--dry-run] [--] <URL>...
+       ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>]... [--curl-binary <CURL_BINARY>] [--no-decode-filename] [-o|-O|--output <PATH>] [--dry-run] [--] <URL>...
+       ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>]... [--curl-binary=<CURL_BINARY>] [--no-decode-filename] [--output=<PATH>] [--dry-run] [--] <URL>...
        ${PROGRAM_NAME} -h|--help
        ${PROGRAM_NAME} -V|--version
 
@@ -58,6 +58,8 @@ Options:
 
   --curl-options <CURL_OPTIONS>: Specify extra options to be passed when invoking curl. May be
                                  specified more than once.
+
+  --curl-binary <CURL_BINARY>: Specify the curl binary to be used. By default, "curl" is used.
 
   -o, -O, --output <PATH>: Use the provided output path instead of getting it from the URL. If
                            multiple URLs are provided, resulting files share the same name with a
@@ -88,6 +90,9 @@ error()
     printf "%s\n" "$*" >&2
     exit 1
 }
+
+# The curl binary to be used.
+CURL_BINARY="curl"
 
 # Extra curl options provided by the user.
 # This is set per-URL for every URL provided.
@@ -124,6 +129,13 @@ readonly UNSAFE_PERCENT_ENCODE="%2F %5C %3A"
 # Whether to invoke curl or not.
 DRY_RUN="false"
 
+# The current version of curl.
+CURL_VERSION=""
+# The normalized curl version, in the format "XXYYZZ", where "XX" is
+# the zero-padded major version, "YY" is the zero-padded minor
+# version and "ZZ" is the zero-padded patch version.
+CURL_NORMALIZED_VERSION=""
+
 # Sanitize parameters.
 sanitize()
 {
@@ -131,7 +143,35 @@ sanitize()
         error "You must provide at least one URL to download."
     fi
 
-    readonly CURL_OPTIONS URLS DRY_RUN HAS_USER_SET_OUTPUT
+    CURL_VERSION=$(${CURL_BINARY} --version | head -n1 | cut -f2 -d' ')
+    if [ -z "${CURL_VERSION}" ]; then
+        error "Unable to determine curl version. Is curl installed?"
+    fi
+
+    CURL_NORMALIZED_VERSION=$(normalize_version "${CURL_VERSION}")
+
+    readonly CURL_OPTIONS \
+        CURL_BINARY \
+        URLS \
+        DRY_RUN \
+        HAS_USER_SET_OUTPUT \
+        CURL_VERSION \
+        CURL_NORMALIZED_VERSION
+}
+
+# Print the normalized format of a version specified as the first argument.
+#
+# The normalized version has the format "XXYYZZ", where "XX" is the
+# zero-padded major version, "YY" is the zero-padded minor version and
+# "ZZ" is the zero-padded patch version.
+normalize_version()
+{
+    version="${1}"
+    vermaj=$(printf "%s" "${version}" | cut -f1 -d.)
+    vermin=$(printf "%s" "${version}" | cut -f2 -d.)
+    verpatch=$(printf "%s" "${version}" | cut -f3 -d.)
+
+    printf "%02d%02d%02d" "${vermaj}" "${vermin}" "${verpatch}"
 }
 
 # Indicate via exit code whether the string given in the first parameter
@@ -200,36 +240,38 @@ get_url_filename()
     # No slash means there was just a hostname and no path; return empty string.
 }
 
+# Given a version (in the format MAJOR.MINOR) as the first argument
+# and an operator as the second argument, perform a comparison against
+# the current curl version.
+compare_curl_version()
+{
+    # Any of: -lt, -le, -eq, -gt, -ge
+    operator="${1}"
+    version="${2}"
+    version_to_compare=$(normalize_version "${version}")
+
+    test "${CURL_NORMALIZED_VERSION}" "${operator}" "${version_to_compare}"
+}
+
 # Execute curl with the list of URLs provided by the user.
 exec_curl()
 {
-    CMD="curl "
-
-    # Store version to check if it supports --no-clobber, --parallel and --parallel-max-host.
-    curl_version=$($CMD --version | cut -f2 -d' ' | head -n1)
-    curl_version_major=$(echo "$curl_version" | cut -f1 -d.)
-    curl_version_minor=$(echo "$curl_version" | cut -f2 -d.)
+    CMD="${CURL_BINARY} "
 
     CURL_NO_CLOBBER=""
     CURL_PARALLEL=""
 
-    if [ "${curl_version_major}" -ge 8 ]; then
+    # --parallel is only supported since 7.66.0.
+    if compare_curl_version -ge "7.66.0"; then
+        CURL_PARALLEL="--parallel"
+    fi
+    # --no-clobber is only supported since 7.83.0.
+    if compare_curl_version -ge "7.83.0"; then
         CURL_NO_CLOBBER="--no-clobber"
-        CURL_PARALLEL="--parallel --parallel-max-host 5"
-
-        # --parallel-max-host is only supported since 8.16.0.
-        if [ "${curl_version_major}" -eq 8 ] && [ "${curl_version_minor}" -lt 16 ]; then
-            CURL_PARALLEL="--parallel"
-        fi
-    elif [ "${curl_version_major}" -eq 7 ]; then
-        # --no-clobber is only supported since 7.83.0.
-        if [ "${curl_version_minor}" -ge 83 ]; then
-            CURL_NO_CLOBBER="--no-clobber"
-        fi
-        # --parallel is only supported since 7.66.0.
-        if [ "${curl_version_minor}" -ge 66 ]; then
-            CURL_PARALLEL="--parallel"
-        fi
+    fi
+    # --parallel-max-host is only supported since 8.16.0.
+    if compare_curl_version -ge "8.16.0"; then
+        CURL_PARALLEL="${CURL_PARALLEL} --parallel-max-host 5"
     fi
 
     # Detecting whether we need --parallel. It is easier to rely on
@@ -285,6 +327,16 @@ while [ -n "${1-}" ]; do
         --curl-options)
             shift
             CURL_OPTIONS="${CURL_OPTIONS} ${1}"
+            ;;
+
+        --curl-binary=*)
+            opt=$(printf "%s\n" "${1}" | sed 's/^--curl-binary=//')
+            CURL_BINARY="${opt}"
+            ;;
+
+        --curl-binary)
+            shift
+            CURL_BINARY="${1}"
             ;;
 
         --dry-run)
