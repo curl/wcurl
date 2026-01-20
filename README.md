@@ -146,6 +146,12 @@ then performs the parsing. May be specified more than once.
   wcurl --curl-options="--parallel-max-host 0" example.com/filename1.txt example.com/filename2.txt
   ```
 
+* Download a list of URLs from a file:
+
+  ```sh
+  while read -r url; do wcurl "$url"; done < filename.txt
+   ```
+
 # Running the testsuite
 
 If you would like to run the tests, you first need to install the
