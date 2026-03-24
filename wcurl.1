@@ -95,7 +95,10 @@ Download a file passing the \fB\--progress\-bar\fP and \fB\--http2\fP flags to c
 
 \fBwcurl \--curl\-options="\--progress\-bar \--http2" example.com/filename.txt\fP
 
-* Resume from an interrupted download. The options necessary to resume the download (\fI\--clobber \--continue\-at \-\fP) must be the \fBlast\fP options specified in \fI\--curl\-options\fP. Note that the only way to resume interrupted downloads is to allow wcurl to overwrite the destination file:
+Resume from an interrupted download. The options necessary to resume the download
+(\fI\--clobber \--continue\-at \-\fP) must be the \fBlast\fP options specified in \fI\--curl\-options\fP.
+Note that the only way to resume interrupted downloads is to allow wcurl to overwrite
+the destination file:
 
 \fBwcurl \--curl\-options="\--clobber \--continue\-at \-" example.com/filename.txt\fP
 
