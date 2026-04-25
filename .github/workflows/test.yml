@@ -130,9 +130,7 @@ jobs:
       - name: Install git and shunit2
         run: |
           dnf install -y git
-          git clone \
-            --depth 1 --branch v2.1.8 \
-            https://github.com/kward/shunit2.git
+          git clone --depth 1 --revision 080159b303537888c5d41910b4d47a5002638e30 https://github.com/kward/shunit2.git # v2.1.8
           cd shunit2
           cp shunit2 /usr/local/bin/shunit2
 
