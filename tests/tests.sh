@@ -268,8 +268,16 @@ testUrlDecodingNonLatinLanguages()
 
 testGlobExpansion()
 {
+    local tmpdir
+    tmpdir="$(mktemp -d)"
+    mkdir "${tmpdir}/example.com"
+    touch "${tmpdir}/example.com/file"
+
     url='example.com/*'
-    ret=$(${WCURL_CMD} "${url}" 2>&1)
+    ret=$(cd "${tmpdir}" && ${WCURL_CMD} "${url}" 2>&1)
+
+    rm -rf "${tmpdir}"
+
     assertContains "Verify whether 'wcurl' protects URLs from glob expansion" "${ret}" 'example.com/*'
 }
 
