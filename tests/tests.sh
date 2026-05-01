@@ -273,5 +273,12 @@ testGlobExpansion()
     assertContains "Verify whether 'wcurl' protects URLs from glob expansion" "${ret}" 'example.com/*'
 }
 
+testFragmentStripping()
+{
+    url='example.com/document.pdf#page=5'
+    ret=$(${WCURL_CMD} "${url}" 2>&1 | tr '\n' ' ')
+    assertContains "Verify whether 'wcurl' correctly strips #fragments from filenames" "${ret}" '--output document.pdf '
+}
+
 # shellcheck disable=SC1091
 . shunit2

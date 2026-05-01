@@ -190,7 +190,7 @@ percent_decode()
 get_url_filename()
 {
     # Remove protocol and query string if present.
-    hostname_and_path="$(printf %s "${1}" | sed -e 's,^[^/]*//,,' -e 's,?.*$,,')"
+    hostname_and_path="$(printf %s "${1}" | sed -e 's,^[^/]*//,,' -e 's,[?#].*$,,')"
     # If what remains contains a slash, there is a path; return it percent-decoded.
     case "${hostname_and_path}" in
         # sed to remove everything preceding the last '/', e.g.: "example/something" becomes "something"
