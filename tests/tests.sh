@@ -266,5 +266,12 @@ testUrlDecodingNonLatinLanguages()
 ## - Options are the same for all URLs (except --next)
 ## - URLs beginning with '-' (with and without using '--')
 
+testGlobExpansion()
+{
+    url='example.com/*'
+    ret=$(${WCURL_CMD} "${url}" 2>&1)
+    assertContains "Verify whether 'wcurl' protects URLs from glob expansion" "${ret}" 'example.com/*'
+}
+
 # shellcheck disable=SC1091
 . shunit2
