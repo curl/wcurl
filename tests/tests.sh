@@ -266,5 +266,12 @@ testUrlDecodingNonLatinLanguages()
 ## - Options are the same for all URLs (except --next)
 ## - URLs beginning with '-' (with and without using '--')
 
+testFragmentStripping()
+{
+    url='example.com/document.pdf#page=5'
+    ret=$(${WCURL_CMD} "${url}" 2>&1 | tr '\n' ' ')
+    assertContains "Verify whether 'wcurl' correctly strips #fragments from filenames" "${ret}" '--output document.pdf '
+}
+
 # shellcheck disable=SC1091
 . shunit2
