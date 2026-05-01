@@ -240,6 +240,8 @@ exec_curl()
     # If there are less than two URLs, do not set the parallel flag.
     if [ "$#" -lt 2 ]; then
         CURL_PARALLEL=""
+    elif [ "${HAS_USER_SET_OUTPUT}" = "true" ] && [ -z "${CURL_NO_CLOBBER}" ]; then
+        error "Using --output with multiple URLs requires curl >= 7.83.0 (--no-clobber)."
     fi
 
     # Start assembling the command.
