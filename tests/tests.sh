@@ -273,5 +273,16 @@ testFragmentStripping()
     assertContains "Verify whether 'wcurl' correctly strips #fragments from filenames" "${ret}" '--output document.pdf '
 }
 
+testMissingArgumentError()
+{
+    ret=$(${WCURL_CMD} --curl-options 2>&1)
+    assertFalse "Verify whether 'wcurl' with missing argument exits with an error" "$?"
+    assertEquals "Verify whether 'wcurl' displays missing argument error for --curl-options" "${ret}" "Option '--curl-options' requires an argument."
+
+    ret=$(${WCURL_CMD} -o 2>&1)
+    assertFalse "Verify whether 'wcurl' with missing argument exits with an error" "$?"
+    assertEquals "Verify whether 'wcurl' displays missing argument error for -o" "${ret}" "Option '-o' requires an argument."
+}
+
 # shellcheck disable=SC1091
 . shunit2
