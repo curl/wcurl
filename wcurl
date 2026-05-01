@@ -283,6 +283,9 @@ while [ -n "${1-}" ]; do
             ;;
 
         --curl-options)
+            if [ -z "${2-}" ]; then
+                error "Option '${1}' requires an argument."
+            fi
             shift
             CURL_OPTIONS="${CURL_OPTIONS} ${1}"
             ;;
@@ -298,6 +301,9 @@ while [ -n "${1-}" ]; do
             ;;
 
         -o | -O | --output)
+            if [ -z "${2-}" ]; then
+                error "Option '${1}' requires an argument."
+            fi
             shift
             HAS_USER_SET_OUTPUT="true"
             OUTPUT_PATH="${1}"
