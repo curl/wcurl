@@ -31,9 +31,6 @@ set -euf
 
 VERSION="2026.01.05"
 
-PROGRAM_NAME="$(basename "$0")"
-readonly PROGRAM_NAME
-
 # Display the version.
 print_version()
 {
@@ -46,39 +43,35 @@ _EOF_
 usage()
 {
     cat << _EOF_
-${PROGRAM_NAME} -- a simple wrapper around curl to easily download files.
+Usage: wcurl [options...] <URL>
 
-Usage: ${PROGRAM_NAME} <URL>...
-       ${PROGRAM_NAME} [--curl-options <CURL_OPTIONS>]... [--no-decode-filename] [-o|-O|--output <PATH>] [--dry-run] [--] <URL>...
-       ${PROGRAM_NAME} [--curl-options=<CURL_OPTIONS>]... [--no-decode-filename] [--output=<PATH>] [--dry-run] [--] <URL>...
-       ${PROGRAM_NAME} -h|--help
-       ${PROGRAM_NAME} -V|--version
+A simple wrapper around curl to easily download files.
 
 Options:
 
-  --curl-options <CURL_OPTIONS>: Specify extra options to be passed when invoking curl. May be
-                                 specified more than once.
+  --curl-options <CURL_OPTS>: Specify extra options to be passed when invoking
+                              curl. May be specified more than once
+  -o, -O, --output <PATH>:    Use the provided output path instead of getting
+                              it from the URL. If multiple URLs are provided,
+                              resulting files share the same name with a number
+                              appended to the end (curl >= 7.83.0). If this
+                              option is provided multiple times, only the last
+                              value is considered
+  --no-decode-filename:       Do not percent-decode the output filename, even if
+                              the percent-encoding in the URL was done by wcurl,
+                              e.g.: The URL contained whitespace
+  --dry-run:                  Do not actually execute curl, just print what
+                              would be invoked
+  -V, --version:              Print version information
+  -h, --help:                 Print this usage message
 
-  -o, -O, --output <PATH>: Use the provided output path instead of getting it from the URL. If
-                           multiple URLs are provided, resulting files share the same name with a
-                           number appended to the end (curl >= 7.83.0). If this option is provided
-                           multiple times, only the last value is considered.
+  <CURL_OPTS>: Any option supported by curl can be set here. This is not used
+               by wcurl; it is instead forwarded to the curl invocation
 
-  --no-decode-filename: Do not percent-decode the output filename, even if the percent-encoding in
-                        the URL was done by wcurl, e.g.: The URL contained whitespace.
-
-  --dry-run: Do not actually execute curl, just print what would be invoked.
-
-  -V, --version: Print version information.
-
-  -h, --help: Print this usage message.
-
-  <CURL_OPTIONS>: Any option supported by curl can be set here. This is not used by wcurl; it is
-                 instead forwarded to the curl invocation.
-
-  <URL>: URL to be downloaded. Anything that is not a parameter is considered
-         an URL. Whitespace is percent-encoded and the URL is passed to curl, which
-         then performs the parsing. May be specified more than once.
+  <URL>:       URL to be downloaded. Anything that is not a parameter is
+               considered an URL. Whitespace is percent-encoded and the URL is
+               passed to curl, which then performs the parsing. May be specified
+               more than once
 _EOF_
 }
 

@@ -54,7 +54,7 @@ testUsage()
     assertTrue "Verify whether '--help' option exits successfully" "$?"
 
     debug "Verifying: '${ret}'"
-    printf "%s\n" "${ret}" | grep -qF "wcurl -- a simple wrapper around curl to easily download files"
+    printf "%s\n" "${ret}" | grep -qF "A simple wrapper around curl to easily download files."
     assertTrue "Verify whether the usage command works" "$?"
 }
 
