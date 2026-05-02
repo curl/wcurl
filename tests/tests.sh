@@ -268,7 +268,6 @@ testUrlDecodingNonLatinLanguages()
 
 testGlobExpansion()
 {
-    local tmpdir
     tmpdir="$(mktemp -d)"
     mkdir "${tmpdir}/example.com"
     touch "${tmpdir}/example.com/file"
