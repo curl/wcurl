@@ -26,8 +26,8 @@
 #
 # SPDX-License-Identifier: curl
 
-# Stop on errors and on usage of unset variables.
-set -eu
+# Stop on errors, usage of unset variables and disable glob expansion.
+set -euf
 
 VERSION="2026.01.05"
 
