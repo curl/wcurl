@@ -20,8 +20,8 @@ Simply call \fBwcurl\fP with a list of URLs you want to download and \fBwcurl\fP
 picks sane defaults.
 
 If you need anything more complex, you can provide any of curl\(aqs supported
-parameters via the \fB\--curl\-options\fP option. Just beware that you likely
-should be using curl directly if your use case is not covered.
+parameters via the \fB\--curl\-options\fP option. Beware that you likely should
+be using curl directly if your use case is not covered.
 
 By default, \fBwcurl\fP does:
 .IP "* Percent-encode whitespace in URLs;"
@@ -70,7 +70,7 @@ last value is considered.
 Do not percent\-decode the output filename, even if the percent\-encoding in the
 URL was done by \fBwcurl\fP, e.g.: The URL contained whitespace.
 .IP --dry-run
-Do not actually execute curl, just print what would be invoked.
+Do not actually execute curl, print what would be invoked.
 .IP "-V, \--version"
 Print version information.
 .IP "-h, \--help"
