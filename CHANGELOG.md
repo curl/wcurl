@@ -95,7 +95,7 @@ SPDX-License-Identifier: curl
  * Stop auto-resuming downloads and do not overwrite files instead by default.
    Safer alternative as otherwise curl can corrupt a file if the name clashes and the size of the existing one is smaller.
    One can easily change that behavior with `--curl-options="--continue-at -"`.
- * New `--dry-run` option: just print what would be invoked.
+ * New `--dry-run` option: print what would be invoked.
  * Choose HTTPS as a default protocol, in case there is none in the URL.
  * Disable curl's URL globbing parser so `{}` and `[]` characters in URLs are not treated specially.
  * Implement support for `--`.
