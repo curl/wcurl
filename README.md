@@ -15,7 +15,7 @@ repositories, `wcurl` might be shipped as part of the `curl` package.
 
 If they do not ship it, consider making a request for it.
 
-You can always install wcurl by simply downloading the script:
+You can always install wcurl by downloading the script:
 
 ```sh
 curl -fLO https://github.com/curl/wcurl/releases/latest/download/wcurl
@@ -53,7 +53,7 @@ wcurl -h|--help
 **wcurl** is a simple curl wrapper which lets you use curl to download files
 without having to remember any parameters.
 
-Simply call **wcurl** with a list of URLs you want to download and **wcurl** picks
+Call **wcurl** with a list of URLs you want to download and **wcurl** picks
 sane defaults.
 
 If you need anything more complex, you can provide any of curl's supported
@@ -155,8 +155,7 @@ If you would like to run the tests, you first need to install the
 `shunit2` package.  On Debian-like and Fedora-like systems, the
 package is called `shunit2`.
 
-After that, you can run the testsuite by simply invoking the test
-script:
+After that, you can run the testsuite by invoking the test script:
 
 ```sh
 ./tests/tests.sh
