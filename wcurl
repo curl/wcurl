@@ -119,7 +119,8 @@ readonly PER_URL_PARAMETERS="\
 # 2F = /
 # 5C = \
 # 3A = :
-readonly UNSAFE_PERCENT_ENCODE="%2F %5C %3A"
+# 7F = DEL
+readonly UNSAFE_PERCENT_ENCODE="%2F %5C %3A %7F"
 
 # Whether to invoke curl or not.
 DRY_RUN="false"

@@ -221,6 +221,13 @@ testUrlDecodingColon()
     assertContains "Verify whether 'wcurl' successfully uses the default filename when the URL ends with a slash" "${ret}" '--output filename%3Awith%3Acolons%3a'
 }
 
+testUrlDecodingDel()
+{
+    url='example.com/filename%7Fwith%7Fdel%7f'
+    ret=$(${WCURL_CMD} ${url} 2>&1 | tr '\n' ' ')
+    assertContains "Verify whether 'wcurl' does not decode the DEL character" "${ret}" '--output filename%7Fwith%7Fdel%7f'
+}
+
 testUrlEncodeColon()
 {
     url='example.com/filename:with:colons:'
