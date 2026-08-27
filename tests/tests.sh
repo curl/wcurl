@@ -98,6 +98,50 @@ testDoubleDash()
     assertContains "Verify whether 'wcurl' considers everywhing after '--' a url" "${ret}" '--curl-options=abc'
 }
 
+testUrlIsPassedAsUrlOption()
+{
+    url='example.com/file'
+    ret=$(${WCURL_CMD} "${url}" 2>&1 | tr '\n' ' ')
+    assertContains "Verify whether 'wcurl' passes the URL as the argument of '--url'" "${ret}" "--url ${url}"
+}
+
+testDoubleDashUrlStartingWithDash()
+{
+    url='--config=/etc/passwd'
+    ret=$(${WCURL_CMD} -- "${url}" 2>&1 | tr '\n' ' ')
+    assertTrue "Verify whether 'wcurl' accepts an URL starting with '-' after '--'" "$?"
+    assertContains "Verify whether 'wcurl' keeps an URL starting with '-' as URL data" "${ret}" "--url ${url}"
+}
+
+testUrlWithTabIsNotSplit()
+{
+    url=$(printf 'example.com/1\texample.com/2')
+    ret=$(${WCURL_CMD} -- "${url}" 2>&1)
+    assertNotContains "Verify whether 'wcurl' keeps an URL containing a tab as a single transfer" "${ret}" '--next'
+}
+
+testUrlWithNewlineIsNotSplit()
+{
+    url=$(printf 'example.com/1\nexample.com/2')
+    ret=$(${WCURL_CMD} -- "${url}" 2>&1)
+    assertNotContains "Verify whether 'wcurl' keeps an URL containing a newline as a single transfer" "${ret}" '--next'
+}
+
+testUrlWithRawUtf8()
+{
+    url='example.com/パーセント'
+    ret=$(${WCURL_CMD} "${url}" 2>&1)
+    assertContains "Verify whether 'wcurl' passes a raw UTF-8 URL through unchanged" "${ret}" "${url}"
+
+    # Non-UTF-8 locales classify the individual bytes of a multi-byte character
+    # as control characters, so wcurl must not reject URLs based on those.
+    eight_bit_locale=$(locale -a 2> /dev/null | grep -i '8859' | head -n1)
+    if [ -n "${eight_bit_locale}" ]; then
+        ret=$(LC_ALL="${eight_bit_locale}" ${WCURL_CMD} "${url}" 2>&1)
+        assertContains "Verify whether 'wcurl' passes a raw UTF-8 URL through unchanged in a non-UTF-8 locale" "${ret}" "${url}"
+    fi
+}
+
 testCurlOptions()
 {
     params='example.com --curl-options=--foo --curl-options --bar'
@@ -105,6 +149,14 @@ testCurlOptions()
     assertTrue "Verify 'wcurl' accepts '--curl-options' with and without trailing '='" "$?"
     assertContains "Verify 'wcurl' correctly passes through --curl-options=<option>" "${ret}" '--foo'
     assertContains "Verify 'wcurl' correctly passes through --curl-options <option>" "${ret}" '--bar'
+}
+
+testCurlOptionsSeparatedByWhitespace()
+{
+    # wcurl restricts IFS to a space when splitting the list of URLs, which must
+    # not change the way the user's options are split.
+    ret=$(${WCURL_CMD} --curl-options "$(printf -- '--foo\t--bar')" example.com 2>&1)
+    assertNotContains "Verify whether 'wcurl' splits '--curl-options' on a tab" "${ret}" "$(printf '\t')"
 }
 
 testNextAmount()

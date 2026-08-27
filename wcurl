@@ -132,6 +132,18 @@ sanitize()
         error "You must provide at least one URL to download."
     fi
 
+    # Split the extra curl options while IFS still has its default value, then
+    # join them back with spaces, so that restricting IFS below does not change
+    # the way the user's options are split.
+    # shellcheck disable=SC2086
+    set -- ${CURL_OPTIONS}
+
+    # Split the list of URLs on spaces only. Spaces are percent-encoded before a
+    # URL is added to the list, so every URL is a single field, and a tab or a
+    # newline inside one URL cannot turn it into more than one curl transfer.
+    IFS=" "
+    CURL_OPTIONS="$*"
+
     readonly CURL_OPTIONS URLS DRY_RUN HAS_USER_SET_OUTPUT
 }
 
@@ -263,7 +275,7 @@ exec_curl()
             [ -z "${OUTPUT_PATH}" ] && OUTPUT_PATH=index.html
         fi
         # shellcheck disable=SC2086
-        set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${CURL_NO_CLOBBER} --output "${OUTPUT_PATH}" ${CURL_OPTIONS} "${url}"
+        set -- "$@" ${NEXT_PARAMETER} ${PER_URL_PARAMETERS} ${CURL_NO_CLOBBER} --output "${OUTPUT_PATH}" ${CURL_OPTIONS} --url "${url}"
         NEXT_PARAMETER="--next"
     done
 
