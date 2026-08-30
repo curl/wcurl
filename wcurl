@@ -194,8 +194,8 @@ get_url_filename()
     # If what remains contains a slash, there is a path; return it percent-decoded.
     case "${hostname_and_path}" in
         # sed to remove everything preceding the last '/', e.g.: "example/something" becomes "something"
-        # sed to also replace ':' with the percent_encoded %3A
-        */*) percent_decode "$(printf %s "${hostname_and_path}" | sed -e 's,^.*/,,' -e 's,:,%3A,g')" ;;
+        # sed to also replace '\' with the percent_encoded %5C and ':' with %3A
+        */*) percent_decode "$(printf %s "${hostname_and_path}" | sed -e 's,^.*/,,' -e 's,\\,%5C,g' -e 's,:,%3A,g')" ;;
     esac
     # No slash means there was only a hostname and no path; return empty string.
 }

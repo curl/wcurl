@@ -163,6 +163,13 @@ testUrlDefaultNameTrailingSlash()
     assertContains "Verify whether 'wcurl' chooses the correct default filename when there is no path in the URL and the URl ends with a slash" "${ret}" 'index.html'
 }
 
+testUrlDefaultNameTrailingBackwardSlash()
+{
+    url="example%20with%20spaces.com\\"
+    ret=$(${WCURL_CMD} ${url} 2>&1)
+    assertContains "Verify whether 'wcurl' chooses the correct default filename when there is no path in the URL and the URL ends with a backslash" "${ret}" 'index.html'
+}
+
 testUrlDecodingWhitespace()
 {
     url='example.com/filename%20with%20spaces'
@@ -226,6 +233,45 @@ testUrlAllowColonWhenOutput()
     url='example.com/filename:with:colons:'
     ret=$(${WCURL_CMD} ${url} -o "i:want:colons:here" 2>&1 | tr '\n' ' ')
     assertContains "Verify whether 'wcurl' successfully uses the default filename when the URL ends with a slash" "${ret}" '--output i:want:colons:here'
+}
+
+testUrlTrimBeforeSlashes()
+{
+    url='example.com/filename/with/slashes'
+    ret=$(${WCURL_CMD} ${url} 2>&1 | tr '\n' ' ')
+    assertContains "Verify whether 'wcurl' successfully trims everything before the last slash" "${ret}" '--output slashes'
+}
+
+testUrlEncodeBackslash()
+{
+    url="example.com/filename\\with\\backslashes\\"
+    ret=$(${WCURL_CMD} ${url} 2>&1 | tr '\n' ' ')
+    assertContains "Verify whether 'wcurl' percent-encodes backslashes found in the filename" "${ret}" '--output filename%5Cwith%5Cbackslashes%5C'
+}
+
+testUrlMixedSlashAndBackslash()
+{
+    url='example.com/filename/with\backslashes'
+    ret=$(${WCURL_CMD} ${url} 2>&1 | tr '\n' ' ')
+    assertContains "Verify whether 'wcurl' trims before the last slash and encodes the remaining backslashes" "${ret}" '--output with%5Cbackslashes'
+
+    url='example.com\filename\with/slashes'
+    ret=$(${WCURL_CMD} ${url} 2>&1 | tr '\n' ' ')
+    assertContains "Verify whether 'wcurl' trims before the last slash when backslashes precede it" "${ret}" '--output slashes'
+}
+
+testUrlAllowBackslashWhenOutput()
+{
+    url='example.com/filename\with\backslashes'
+    output='i\want\backslashes\here'
+    ret=$(${WCURL_CMD} ${url} -o "${output}" 2>&1 | tr '\n' ' ')
+    # A 'case' is used instead of assertContains() because shunit2 passes the
+    # strings through 'echo', which expands backslash escapes in some shells.
+    case "${ret}" in
+        *"--output ${output}"*) found_output="true" ;;
+        *) found_output="false" ;;
+    esac
+    assertEquals "Verify whether 'wcurl' allows backslashes when the output path is set by the user" "${found_output}" "true"
 }
 
 # Test decoding a bunch of different languages (that do not use the latin
