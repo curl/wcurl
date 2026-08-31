@@ -29,7 +29,7 @@
 # Stop on errors, usage of unset variables and disable glob expansion.
 set -euf
 
-VERSION="2026.01.05"
+VERSION="2026.08.30"
 
 PROGRAM_NAME="$(basename "$0")"
 readonly PROGRAM_NAME
