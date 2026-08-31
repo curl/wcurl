@@ -8,6 +8,18 @@ SPDX-License-Identifier: curl
 
 # Changelog
 
+## [v2026.08.30]
+ * Better folding of long lines in manual.
+ * Strip URL fragment identifier (#) from output filename.
+ * Fix missing argument crash for options.
+ * Prevent silent overwrite with --output on older curl
+ * Disable shell glob expansion.
+ * Drop 'badwords' ("simply", "just") from docs, based on curl checker.
+ * Percent-encode backslashes found in the file name.
+ * Do not percent-decode DEL in the output file name.
+ * Keep URL operands out of curl's option context.
+ * Update AUTHORS.
+
 ## [v2026.01.05]
  * Do not percent-decode colons ":", and percent-encode them when found.
    Thanks to Stanislav Fort.
