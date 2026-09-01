@@ -202,7 +202,7 @@ percent_decode()
 # Print the percent-decoded filename portion of the given URL.
 get_url_filename()
 {
-    # Remove protocol and query string if present.
+    # Remove protocol, query string and URL fragments if present.
     hostname_and_path="$(printf %s "${1}" | sed -e 's,^[^/]*//,,' -e 's,[?#].*$,,')"
     # If what remains contains a slash, there is a path; return it percent-decoded.
     case "${hostname_and_path}" in
