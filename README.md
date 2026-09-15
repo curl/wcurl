@@ -71,7 +71,7 @@ be using curl directly if your use case is not covered.
   * Set the downloaded file timestamp to the value provided by the server, if available;
   * Disable **curl**'s URL globbing parser so `{}` and `[]` characters in URLs are not treated specially;
   * Percent-decode the resulting filename;
-  * Use "index.html" as default filename if there is none in the URL.
+  * Use "index.html" as default filename if there is none in the URL, or if it is '-'.
 
 # Options
 

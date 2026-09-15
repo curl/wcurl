@@ -83,6 +83,28 @@ testParallelIfMoreThanOneUrl()
     assertContains "Verify whether 'wcurl' uses '--parallel' if more than one url is provided" "${ret}" '--parallel'
 }
 
+testUrlDefaultNameDash()
+{
+    url='example.com/-'
+    ret=$(${WCURL_CMD} ${url} 2>&1 | tr '\n' ' ')
+    assertContains "Verify whether 'wcurl' chooses the default filename when the filename in the URL is '-'" "${ret}" '--output index.html '
+
+    url='example.com/%2D'
+    ret=$(${WCURL_CMD} ${url} 2>&1 | tr '\n' ' ')
+    assertContains "Verify whether 'wcurl' chooses the default filename when the filename in the URL is a percent-encoded '-'" "${ret}" '--output index.html '
+
+    url='example.com/-'
+    ret=$(${WCURL_CMD} --no-decode-filename ${url} 2>&1 | tr '\n' ' ')
+    assertContains "Verify whether 'wcurl' chooses the default filename when the filename in the URL is '-' and --no-decode-filename is used" "${ret}" '--output index.html '
+}
+
+testUrlAllowDashWhenOutput()
+{
+    url='example.com/filename'
+    ret=$(${WCURL_CMD} ${url} -o - 2>&1 | tr '\n' ' ')
+    assertContains "Verify whether 'wcurl' allows writing to stdout when the output path is set by the user" "${ret}" '--output - '
+}
+
 testEncodingWhitespace()
 {
     url='example.com/white space'
