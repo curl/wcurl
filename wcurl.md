@@ -69,7 +69,7 @@ By default, **wcurl** does:
 ## * Percent-decode the resulting filename;
 
 ## * Use 'index.html' as the default filename
-    if there is none in the URL.
+    if there is none in the URL, or if it is '-'.
 
 # OPTIONS
 
