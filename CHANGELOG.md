@@ -8,11 +8,15 @@ SPDX-License-Identifier: curl
 
 # Changelog
 
+## [v2026.10.12]
+ * Never derive an output filename of "-".
+ * Document how `--curl-options` splits its value.
+
 ## [v2026.08.30]
  * Better folding of long lines in manual.
  * Strip URL fragment identifier (#) from output filename.
  * Fix missing argument crash for options.
- * Prevent silent overwrite with --output on older curl
+ * Prevent silent overwrite with --output on older curl.
  * Disable shell glob expansion.
  * Drop 'badwords' ("simply", "just") from docs, based on curl checker.
  * Percent-encode backslashes found in the file name.
