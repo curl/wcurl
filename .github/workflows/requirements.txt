@@ -2,4 +2,4 @@
 # SPDX-License-Identifier: curl
 
 codespell==2.4.3
-reuse==6.2.0
+reuse==6.3.0
